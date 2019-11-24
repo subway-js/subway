@@ -4,15 +4,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
-    />
+    <meta name="description" content="Event sourcing example with SubwayJS" />
     <link rel="apple-touch-icon" href="logo192.png" />
-    <title>React App</title>
+    <title>SubwayJS - Event Sourcing</title>
+    <script src="/dist/subway.js"></script>
   </head>
-
-  <script src="/dist/subway.js"></script>
 
   <script>
     (function() {
@@ -39,11 +35,7 @@
       // TODO 1 : aggregate 1. state 2. services
       // TODO 2 : call onError for COMMAND handlers exceptions
       const AGGREGATE = "TabAggregate";
-      // const TabAggragate = {
-      //   open: false,
-      //   outstandingDrinks: [],
-      //   outstandingDrinks: [],
-      // }
+
       const CMD = {
         OPEN_TAB: "OpenTab",
         PLACE_ORDER: "PlaceOrder",
@@ -89,62 +81,6 @@
         }
       });
 
-      // tabAggregate.spy(CMD.OPEN_TAB, {
-      //   next: payload => {
-      //     console.log("CMD.OPEN_TAB > ", payload);
-      //   }
-      // });
-      // tabAggregate.spy(EVT.TAB_OPENED, {
-      //   next: payload => {
-      //     console.log("EVT.TAB_OPENED > ", payload);
-      //   }
-      // });
-      // tabAggregate.spy(CMD.PLACE_ORDER, {
-      //   next: payload => {
-      //     console.log("CMD.PLACE_ORDER > ", payload);
-      //   }
-      // });
-      // tabAggregate.spy(EVT.DRINKS_ORDERED, {
-      //   next: payload => {
-      //     console.log("EVT.DRINKS_ORDERED > ", payload);
-      //   }
-      // });
-      // tabAggregate.spy(EVT.FOOD_ORDERED, {
-      //   next: payload => {
-      //     console.log("EVT.FOOD_ORDERED > ", payload);
-      //   }
-      // });
-      // tabAggregate.spy(CMD.MARK_DRINK_SERVED, {
-      //   next: payload => {
-      //     console.log("CMD.MARK_DRINK_SERVED > ", payload);
-      //   }
-      // });
-      // tabAggregate.spy(EVT.DRINK_SERVED, {
-      //   next: payload => {
-      //     console.log("EVT.DRINK_SERVED > ", payload);
-      //   }
-      // });
-      // tabAggregate.spy(CMD.MARK_FOOD_SERVED, {
-      //   next: payload => {
-      //     console.log("CMD.MARK_FOOD_SERVED > ", payload);
-      //   }
-      // });
-      // tabAggregate.spy(EVT.FOOD_SERVED, {
-      //   next: payload => {
-      //     console.log("EVT.FOOD_SERVED > ", payload);
-      //   }
-      // });
-      // tabAggregate.spy(CMD.CLOSE_TAB, {
-      //   next: payload => {
-      //     console.log("CMD.CLOSE_TAB > ", payload);
-      //   }
-      // });
-      // tabAggregate.spy(EVT.TAB_CLOSED, {
-      //   next: payload => {
-      //     console.log("EVT.TAB_CLOSED > ", payload);
-      //   }
-      // });
-
       tabAggregate.setCommandHandler(CMD.OPEN_TAB, (topicState, payload) => {
         return {
           events: [
@@ -188,7 +124,7 @@
       tabAggregate.setEventHandler(EVT.FOOD_ORDERED, (topicState, payload) => {
         return {
           proposal: {
-            ...topicState, // TODO no, only partial
+            ...topicState,
             outstandingFood: payload
           }
         };
@@ -268,7 +204,7 @@
 
         return {
           proposal: {
-            ...topicState, // TODO no, only partial, mutate!
+            ...topicState,
             servedItemsValue:
               (topicState.servedItemsValue || 0) + servedItemsValue,
             outstandingFood: nextOutstandingFood
@@ -337,7 +273,6 @@
   </script>
 
   <body>
-    <button onclick="login()">Login</button>
     <pre style="font-size: 8px;" id="root"></pre>
   </body>
 </html>

@@ -1,6 +1,6 @@
 # SubwayJS
 
-Subway is a lightweight and zero-dependencies personal project that explores the idea of bringing **event sourcing & CQRS** to the browser for micro-frontends development.
+Subway is a personal project that explores the idea of bringing **event sourcing & CQRS** to the browser for micro-frontends development.
 
 ## Concepts
 
@@ -130,7 +130,7 @@ Subway
 Events indicate that something happened in our system, and they are named in the past tense: this is a very important difference in the context of event sourcing pattern.
 
 The main difference between a command and an event handler is that the event handler **can change the aggregate state**: it can also trigger additional events to implement more complex business logic.
- 
+
 ### 4. Observing state
 
 So far we saw how to create an aggregate, send commands to it, and configure the chain of events and business logic triggered by those commands: we are still missing the ability to receive the new state of an aggregate (e.g. to implement our views).
@@ -148,7 +148,7 @@ Subway
 ```
 
 Every time an aggregate state is updated, the `next` function will be invoked.
- 
+
 ### 5. Spy
 
 We can 'spy' on aggregates to see the ongoing commands and events activity:
