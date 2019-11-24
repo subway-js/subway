@@ -2,7 +2,7 @@
 
 Subway is a lightweight and zero-dependencies personal project that explores the idea of bringing **event sourcing & CQRS** to the browser for micro-frontends development.
 
-### Concepts
+## Concepts
 
 _// todo_
 
@@ -14,7 +14,7 @@ _// todo_
 - aggregate
 - commands & events
 
-### Installation
+## Installation
 
 Once you import SubwayJS in your HTML file
 
@@ -24,9 +24,9 @@ Once you import SubwayJS in your HTML file
 
 the library will create a global variable `Subway` in the `window` global object.
 
-### Usage
+## Usage
 
-#### 1. Aggregates
+### 1. Aggregates
 
 You can create an aggregate by providing a unique aggregate name:
 
@@ -38,7 +38,7 @@ You can also specify an initial state for the aggregate:
 
 ```js
 const counterAggregate = Subway.createAggregate("counter", { value: 0 });
-``` 
+```
 
 Additionally, you can select an existing aggregate:
 
@@ -46,7 +46,7 @@ Additionally, you can select an existing aggregate:
 const counterAggregate = Subway.selectAggregate("counter");
 ```
 
-#### 2. Handling commands
+### 2. Handling commands
 
 It helps to think about aggregates as domain-relevant entities who are able to receive messages and do something with those messages. Messages can be **commands** or **events**.
 
@@ -101,7 +101,7 @@ Subway
 Commands cannot change the aggregate state: they represent an **intent** to act on it, and their name usually includes a **verb in the imperative mood**.
 
 
-#### 3. Handling events
+### 3. Handling events
 
 We can't directly send an event to aggregate (they are the result of a command), but we can define a handler to make use of them:
 
@@ -131,7 +131,7 @@ Events indicate that something happened in our system, and they are named in the
 
 The main difference between a command and an event handler is that the event handler **can change the aggregate state**: it can also trigger additional events to implement more complex business logic.
 
-#### 4. Observing state
+### 4. Observing state
 
 So far we saw how to create an aggregate, send commands to it, and configure the chain of events and business logic triggered by those commands: we are still missing the ability to receive the new state of an aggregate (e.g. to implement our views).
 
@@ -150,7 +150,7 @@ Subway
 Every time an aggregate state is updated, the `next` function will be invoked.
 
 
-#### 5. Spy
+### 5. Spy
 
 We can 'spy' on aggregates to see the ongoing commands and events activity:
 
@@ -167,12 +167,12 @@ Subway
 You can either spy all commands and events (e.g. `spy('*', ...)`), or specify one (e.g. `spy('COUNTER_READY', ...)`)
 
 
-### Examples
+## Examples
 
-### Open topics
+## Open topics
 
 - events store
 - aggregate state: mutable vs immutable
 - ...
 
-### Why 'subway'?
+## Why 'subway'?
