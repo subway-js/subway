@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Web site created using create-react-app"
+    />
+    <link rel="apple-touch-icon" href="logo192.png" />
+    <title>React App</title>
+  </head>
+
+  <!-- Hygga framework -->
+  <script src="/dist/subway.js"></script>
+
+  <!-- Microfrontends list -->
+  <script type="text/javascript">
+    Subway.helpers.composeMicroFrontends({
+      mfs: [
+        {
+          id: "MF_1",
+          src: "http://127.0.0.1:8080/dev/microservices/mf1.js",
+          domSelector: "#mf1"
+        },
+        {
+          id: "MF_2",
+          src: "http://127.0.0.1:8080/dev/microservices/mf2.js",
+          domSelector: "#mf2"
+        },
+        { id: "MF_3", domSelector: "#mf3" }
+      ]
+    });
+  </script>
+  <!--
+  <script src="/dev/microservices/mf1.js"></script>
+  <script src="/dev/microservices/mf2.js"></script>
+ -->
+  <script id="MF_3" src="/dev/microservices/mf3.js"></script>
+  <body>
+    <div id="mf1"></div>
+    <div id="mf2"></div>
+    <div id="mf3"></div>
+  </body>
+</html>

@@ -1,0 +1,31 @@
+{
+  "name": "subway",
+  "version": "0.1.0",
+  "main": "dist/subway.cjs.js",
+  "module": "dist/subway.esm.js",
+  "browser": "dist/subway.js",
+  "dependencies": {},
+  "devDependencies": {
+    "@babel/core": "7.7.2",
+    "@babel/preset-env": "7.7.1",
+    "prettier": "1.19.1",
+    "rollup": "^1.20.0",
+    "rollup-plugin-babel": "4.3.3",
+    "rollup-plugin-terser": "5.1.2"
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "test": "node test/test.js",
+    "pretest": "npm run build",
+    "prettier": "npx prettier --write src/**"
+  },
+  "files": [
+    "dist"
+  ],
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
+  }
+}
