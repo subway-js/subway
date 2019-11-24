@@ -5,9 +5,7 @@
       {
         "modules": false,
         "useBuiltIns": "usage",
-        "targets": {
-          
-        }
+        "targets": {}
       }
     ]
   ]

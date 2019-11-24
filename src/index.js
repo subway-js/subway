@@ -18,8 +18,8 @@ import {
 } from "./helpers/microfrontends/index";
 
 const getApi = aggregateName => ({
-  // spy( *  )
   spy: _spy(aggregateName),
+  // TODO return state on first subscribe
   observeState: _observeState(aggregateName),
   sendCommand: _sendCommand(aggregateName),
   setCommandHandler: _setCommandHandler(aggregateName),
@@ -47,7 +47,7 @@ const Subway = {
   selectAggregate,
   helpers: {
     composeMicroFrontends: _init,
-    installMicroFrontend: _connect(_sendCommand, _spy)
+    installMicroFrontend: _connect
   }
 };
 

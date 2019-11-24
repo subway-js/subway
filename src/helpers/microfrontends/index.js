@@ -1,9 +1,7 @@
 import { createAggregate } from "../../aggregates";
-
-import {
-  setCommandHandler as _setCommandHandler,
-  setEventHandler as _setEventHandler
-} from "../../handlers";
+import { injectMicrofrontends } from "./utils/loader";
+import { sendCommand, spy } from "../../messaging";
+import { setCommandHandler, setEventHandler } from "../../handlers";
 
 import { AGGREGATE } from "./globals/aggregates";
 import { CMD } from "./globals/commands";
@@ -11,27 +9,6 @@ import { EVT } from "./globals/events";
 
 let unsubscribeFnsSet = new Set();
 
-const loadJsScript = (id, src, cb) => {
-  const existingScript = document.getElementById(id);
-
-  if (!existingScript) {
-    const script = document.createElement("script");
-    script.src = src; // URL for the third-party library being loaded.
-    script.id = id; // e.g., googleMaps or stripe
-    // document.body.appendChild(script);
-    document.getElementsByTagName("head")[0].appendChild(script);
-
-    script.onload = () => {
-      if (cb) cb(id);
-    };
-  }
-
-  if (existingScript && cb) cb(id);
-};
-
-const injectDynamicMicrofrontends = mfArray => {
-  mfArray.forEach(({ id, src }) => loadJsScript(id, src));
-};
 export const init = mfConfig => {
   const rootAggregate = createAggregate(AGGREGATE.MF_ROOT, {
     initialized: false,
@@ -39,7 +16,7 @@ export const init = mfConfig => {
     pending: [...mfConfig.mfs]
   });
 
-  const unsubCmdConnectMf = _setCommandHandler(AGGREGATE.MF_ROOT)(
+  const unsubCmdConnectMf = setCommandHandler(AGGREGATE.MF_ROOT)(
     CMD.CONNECT_MF,
     (topicState, { id }) => {
       if (topicState.initialized)
@@ -59,7 +36,7 @@ export const init = mfConfig => {
 
   unsubscribeFnsSet.add(unsubCmdConnectMf);
 
-  const unsubEvtMfConnected = _setEventHandler(AGGREGATE.MF_ROOT)(
+  const unsubEvtMfConnected = setEventHandler(AGGREGATE.MF_ROOT)(
     EVT.MF_CONNECTED,
     (topicState, targetMf) => {
       const returnValue = {
@@ -80,7 +57,7 @@ export const init = mfConfig => {
   );
   unsubscribeFnsSet.add(unsubEvtMfConnected);
 
-  const unsubEvtMfNotified = _setEventHandler(AGGREGATE.MF_ROOT)(
+  const unsubEvtMfNotified = setEventHandler(AGGREGATE.MF_ROOT)(
     EVT.ALL_MFS_CONNECTED,
     topicState => {
       let events = [];
@@ -106,10 +83,10 @@ export const init = mfConfig => {
   );
   unsubscribeFnsSet.add(unsubEvtMfNotified);
 
-  injectDynamicMicrofrontends([...mfConfig.mfs].filter(mf => mf.src));
+  injectMicrofrontends([...mfConfig.mfs].filter(mf => mf.src));
 };
 
-export const connect = (sendCommand, spy) => (microFrontendId, onConnected) => {
+export const connect = (microFrontendId, onConnected) => {
   const unsubscribe = spy(AGGREGATE.MF_ROOT)(EVT.MF_ACK_SENT(microFrontendId), {
     next: payload => {
       // TODO unsubscribe();
