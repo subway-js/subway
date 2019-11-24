@@ -26,6 +26,8 @@ the library will create a global variable `Subway` in the `window` global object
 
 ## Usage
 
+Check the [event-sourcing example](https://github.com/subway-js/subway/tree/master/examples/event-sourcing) to check an implementation of this [this great tutorial](https://cqrs.nu/tutorial/cs/01-design)
+
 ### 1. Aggregates
 
 You can create an aggregate by providing a unique aggregate name:
@@ -165,13 +167,73 @@ Subway
 
 You can either spy all commands and events (e.g. `spy('*', ...)`), or specify one (e.g. `spy('COUNTER_READY', ...)`)
 
+### Micro-frontends
 
-## Examples
+Check the [micro-frontends example](https://github.com/subway-js/subway/tree/master/examples/micro-frontends) for the full code.
+
+Subway comes with two utility functions to setup your micro-frontends.
+
+The first one is `Subway.helpers.composeMicroFrontends()`, which compose the application:
+
+```html
+<script type="text/javascript">
+  Subway.helpers.composeMicroFrontends({
+    mfs: [
+      {
+        id: "MF_1",
+        src: "http://127.0.0.1:8080/examples/microservices/mf1.js",
+        domSelector: "#mf1"
+      },
+      {
+        id: "MF_2",
+        src: "http://127.0.0.1:8080/examples/microservices/mf2.js",
+        domSelector: "#mf2"
+      },
+      { id: "MF_3", domSelector: "#mf3" }
+    ]
+  });
+</script>
+```
+
+It accepts a list of micro-frontends elements, that specify:
+- an `ìd` to uniquely identify the micro-frontend
+- a `src`, the URL to dynamically load the micro-frontend javascript file
+- a `domSelector`, which identify the existing HTML element inside the page that will contain the micro-frontend
+
+It is also possible to statically load a micro-frontend by omitting the `src` attribute and attaching the script tag to the html file as follows (it is possible to mix dynamic and static micro-frontends):
+
+```html
+<script type="text/javascript">
+  Subway
+    .helpers
+    .composeMicroFrontends({
+      mfs: [{
+        id: "MF_1",
+        src: "http://127.0.0.1:8080/examples/microservices/mf1.js",
+        domSelector: "#mf1"
+      }, {
+        id: "MF_3",
+        domSelector: "#mf3"
+      }]
+    });
+</script>
+<script id="MF_3" src="/examples/microservices/mf3.js"></script>
+```
+
+The second utility function is the one used by each micro-frontend to install itself into the application container:
+
+```js
+Subway
+  .helpers
+  .installMicroFrontend('MF_1', ({ domSelector }) => {
+  // bootstrap your app in the HTML element identified by 'domSelector'
+});
+```
 
 ## Open topics
 
-- events store
-- aggregate state: mutable vs immutable
-- ...
+- events store? (time machine, offline capabilities, state snapshot for quick startup)
+- aggregate state: mutable vs immutable (enforce immutability VS embrace mutability with SAM-ish approach)
+- investigate web workers integration
 
 ## Why 'subway'?
