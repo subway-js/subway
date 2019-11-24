@@ -26,7 +26,7 @@ the library will create a global variable `Subway` in the `window` global object
 
 ## Usage
 
-### 1. Aggregates
+### 1. Aggregates
 
 You can create an aggregate by providing a unique aggregate name:
 
@@ -46,7 +46,7 @@ Additionally, you can select an existing aggregate:
 const counterAggregate = Subway.selectAggregate("counter");
 ```
 
-### 2. Handling commands
+### 2. Handling commands
 
 It helps to think about aggregates as domain-relevant entities who are able to receive messages and do something with those messages. Messages can be **commands** or **events**.
 
@@ -101,7 +101,7 @@ Subway
 Commands cannot change the aggregate state: they represent an **intent** to act on it, and their name usually includes a **verb in the imperative mood**.
 
 
-### 3. Handling events
+### 3. Handling events
 
 We can't directly send an event to aggregate (they are the result of a command), but we can define a handler to make use of them:
 
@@ -130,8 +130,8 @@ Subway
 Events indicate that something happened in our system, and they are named in the past tense: this is a very important difference in the context of event sourcing pattern.
 
 The main difference between a command and an event handler is that the event handler **can change the aggregate state**: it can also trigger additional events to implement more complex business logic.
-
-### 4. Observing state
+ 
+### 4. Observing state
 
 So far we saw how to create an aggregate, send commands to it, and configure the chain of events and business logic triggered by those commands: we are still missing the ability to receive the new state of an aggregate (e.g. to implement our views).
 
@@ -148,9 +148,8 @@ Subway
 ```
 
 Every time an aggregate state is updated, the `next` function will be invoked.
-
-
-### 5. Spy
+ 
+### 5. Spy
 
 We can 'spy' on aggregates to see the ongoing commands and events activity:
 
