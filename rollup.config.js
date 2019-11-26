@@ -14,8 +14,8 @@ export default [
       file: pkg.browser,
       format: "iife"
     }
-  },
-  {
+  }
+  /*  {
     input: "src/index.js",
     output: {
       name: "Subway",
@@ -53,5 +53,5 @@ export default [
       }),
       terser()
     ]
-  }
+  }*/
 ];
