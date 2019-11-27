@@ -1,5 +1,5 @@
 {
-  "name": "subway",
+  "name": "@subway-js/subway",
   "version": "0.1.0",
   "main": "dist/subway.cjs.js",
   "module": "dist/subway.esm.js",
@@ -27,5 +27,8 @@
     "hooks": {
       "pre-commit": "pretty-quick --staged"
     }
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
   }
 }
