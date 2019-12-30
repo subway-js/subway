@@ -1,6 +1,8 @@
 
 # SubwayJS
-Subway is a personal **work in progress** project from [danilorossi](https://github.com/danilorossi) that explores the idea of bringing **event sourcing & CQRS** to the browser for micro-frontends development.
+Subway is a personal project from [danilorossi](https://github.com/danilorossi) that explores the idea of bringing **event sourcing & CQRS** to the browser for micro-frontends development.
+
+**It's in a very early stage and design/code/documentation is work in progress**
 
 ## Concepts / TODO
 - DDD concepts
