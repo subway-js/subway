@@ -35,10 +35,15 @@ export const observeState = aggregateName => next => {
   } else {
     _aggregateStoreObservers.get(aggregateName).add(next);
   }
-  return () => {
-    _aggregateStoreObservers.get(aggregateName).delete(next);
-    if (_aggregateObservers.get(aggregateName).size === 0) {
-      _aggregateObservers.delete(aggregateName);
+  return {
+    currentState: aggregateExists(aggregateName)
+      ? _aggregateStores.get(aggregateName)
+      : {},
+    unsubscribe: () => {
+      _aggregateStoreObservers.get(aggregateName).delete(next);
+      if (_aggregateObservers.get(aggregateName).size === 0) {
+        _aggregateObservers.delete(aggregateName);
+      }
     }
   };
 };

@@ -1,6 +1,6 @@
 # SubwayJS
 
-Subway is a personal project that explores the idea of bringing **event sourcing & CQRS** to the browser for micro-frontends development.
+Subway is a personal project from [danilorossi](https://github.com/danilorossi) that explores the idea of bringing **event sourcing & CQRS** to the browser for micro-frontends development.
 
 ## Concepts
 
@@ -235,5 +235,3 @@ Subway
 - events store? (time machine, offline capabilities, state snapshot for quick startup)
 - aggregate state: mutable vs immutable (enforce immutability VS embrace mutability with SAM-ish approach)
 - investigate web workers integration
-
-## Why 'subway'?
