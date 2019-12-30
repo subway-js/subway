@@ -1,12 +1,8 @@
 
-# SubwayJS <span style="background: red; padding: 4px; font-size: 12px; color: white">Alpha </span>
+# SubwayJS
+Subway is a personal **work in progress** project from [danilorossi](https://github.com/danilorossi) that explores the idea of bringing **event sourcing & CQRS** to the browser for micro-frontends development.
 
-Subway is a personal project from [danilorossi](https://github.com/danilorossi) that explores the idea of bringing **event sourcing & CQRS** to the browser for micro-frontends development.
-
-## Concepts
-
-_// todo_
-
+## Concepts / TODO
 - DDD concepts
 - event sourcing concepts
 - CQRS Concepts
