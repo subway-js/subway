@@ -25,7 +25,7 @@ the library will create a global variable `Subway` in the `window` global object
 
 ## Usage
 
-Check the [event-sourcing example](https://github.com/subway-js/subway/tree/master/examples/event-sourcing) to check an implementation of this [this great tutorial](https://cqrs.nu/tutorial/cs/01-design)
+Check the [react event-sourcing example](https://github.com/subway-js/subway-react-example) as an implementation of this [this great tutorial](https://cqrs.nu/tutorial/cs/01-design)
 
 ### 1. Aggregates
 
