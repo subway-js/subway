@@ -4,15 +4,6 @@ Subway is a personal project from [danilorossi](https://github.com/danilorossi) 
 
 **It's in a very early stage and design/code/documentation is work in progress**
 
-## Concepts / TODO
-- DDD concepts
-- event sourcing concepts
-- CQRS Concepts
-- microfrontends
-
-- aggregate
-- commands & events
-
 ## Installation
 
 Import SubwayJS in your HTML file using *unpkg*:
@@ -228,6 +219,15 @@ Subway
   // bootstrap your app in the HTML element identified by 'domSelector'
 });
 ```
+
+## Concepts / TODO
+- DDD concepts
+- event sourcing concepts
+- CQRS Concepts
+- microfrontends
+
+- aggregate
+- commands & events
 
 ## Open topics
 
