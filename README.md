@@ -15,13 +15,13 @@ Subway is a personal project from [danilorossi](https://github.com/danilorossi) 
 
 ## Installation
 
-Once you import SubwayJS in your HTML file
+Import SubwayJS in your HTML file using *unpkg*:
 
 ```html
-<script src="/dist/subway.js"></script>
+<script src="https://unpkg.com/@subway-js/subway@latest/dist/subway.js"></script>
 ```
 
-the library will create a global variable `Subway` in the `window` global object.
+The library will create a global variable `Subway` in the `window` global object.
 
 ## Usage
 
