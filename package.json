@@ -1,7 +1,6 @@
 {
   "name": "@subaway-js/subway",
   "version": "0.1.0",
-  "private": true,
   "main": "dist/subway.cjs.js",
   "module": "dist/subway.esm.js",
   "browser": "dist/subway.js",
