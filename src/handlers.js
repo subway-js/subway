@@ -67,18 +67,21 @@ const runHandler = (
       const handlers = Array.from(
         _topicHandlers.get(aggregateName).get(messageType)
       );
-      handlers.forEach(handler => {
-        const topicState = getAggregateState(aggregateName);
 
+      let _aggregateState = getAggregateState(aggregateName);
+      handlers.forEach(handler => {
         try {
           const { proposal = null, events = null } =
-            handler.run(topicState, payload) || {};
+            handler.run(_aggregateState, payload) || {};
           if (isCommand && proposal)
             throw Error("Command cannot change aggregate state");
           // TODO save state if accepted
           // TODO save events in event store?
           // TODO topic name should be TO or FROM?
           proposal && updateAggregateState(aggregateName, proposal);
+
+          // use latest state for next forEach loop
+          _aggregateState = proposal;
           setTimeout(() => {
             events &&
               events.forEach(e => triggerEvent(aggregateName, e.id, e.payload));
