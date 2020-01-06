@@ -2,7 +2,42 @@
 # SubwayJS
 Subway is a personal project from [danilorossi](https://github.com/danilorossi) that explores the idea of bringing **event sourcing & CQRS** to the browser for micro-frontends development.
 
-**It's in a very early stage and design/code/documentation is work in progress**
+## Disclaimer
+
+**SubwayJS is in a very early stage, and design/code/documentation is work in progress**
+
+## Background
+
+While working as FE Architect a few years ago, I had the luck to face a very challenging problem that led me and my team designing and implementing what is now called a 'micro-frontends' architecture - we didn't really know at that time, it was around 2016.
+
+At the same time, I have been lucky enough to work very closely to some great BE engineers implementing a backend system with a DDD approach, CQRS, microservices, a message broker, and so on.
+
+After that, as an engineering manager, I also understood how microservices and microfrontends - and we could also mention DevOps and Domain Driven Design - are not only a technical answer to technical problems: they are also a technical answer to 'people' and management problems.
+
+With this project, I want to explore how the approach that I found so valuable and interesting in the backend can be applied on the frontend as a way to:
+- implement a micro-frontend approach
+- describe a system in a way that is easily understandable, manageable and expandable, for monolithic frontends as well as micro-frontends
+- keep coding :) which I don´t do anymore working as a Delivery Manager
+
+## Current status
+
+I started implementing [this nice tutorial](https://cqrs.nu/tutorial/cs/01-design) as a simple HTML application (check the `/example/event-sourcing/` folder) to investigate the model, the API and the overall idea and design.
+
+I also explored the microfrontends approach in the `/example/micro-frontend/` page.
+
+I am now implementing the same tutorial as a [react web application](https://github.com/subway-js/subway-react-example).
+
+**Next steps will be:**
+- implement an actual use case e.g. web page with authentication, navigation, etc. to see how the model adapt to a real use case
+- implement the same web application with micro frontends
+
+This project touches many topics, and I am going to use this example-based approach to find a good answer to such topics, e.g.:
+- *state management*: mutable or immutable? If mutable, how can SAM architecture inspire the framework?
+- *events store*: do we need one? How do we manage offline and page reload? How do we synch with the backend?
+- *async* command/event handlers
+- is this framework *performant*, or is there any bottleneck? How to integrate *WebWorkers*?
+
+Plus many others that will show up during this investigation.
 
 ## Installation
 
@@ -14,9 +49,21 @@ Import SubwayJS in your HTML file using *unpkg*:
 
 The library will create a global variable `Subway` in the `window` global object.
 
-## Usage
+## Current model and API
 
-Check the [react event-sourcing example](https://github.com/subway-js/subway-react-example) as an implementation of this [this great tutorial](https://cqrs.nu/tutorial/cs/01-design)
+The model and  API can (and will) change based on the on-going investigation: the following description is the current state of SubwayJS, which matches the overall idea of having:
+
+- **aggregates**, the basic domain entity, with their own in memory **store**
+
+- **commands**, which are the trigger of events in the aggregates scope
+
+- **events**, which are things that happened in the system and that can change an aggregate's state
+
+- the ability to **observe** an aggregate's state, in order to be notified when a change happens
+
+- the ability to **spy** on any aggregate message bus, to listen to events and react accordingly
+
+- a **micro-frontends** orchestration utility, implemented with the same SubwayJS library through aggregates, commands and events
 
 ### 1. Aggregates
 
@@ -220,7 +267,9 @@ Subway
 });
 ```
 
-## Concepts / TODO
+## Concepts
+
+**TO DO: a quick introduction to the main concept that inspire SubayJS, such as:**
 - DDD concepts
 - event sourcing concepts
 - CQRS Concepts
@@ -228,9 +277,3 @@ Subway
 
 - aggregate
 - commands & events
-
-## Open topics
-
-- events store? (time machine, offline capabilities, state snapshot for quick startup)
-- aggregate state: mutable vs immutable (enforce immutability VS embrace mutability with SAM-ish approach)
-- investigate web workers integration
