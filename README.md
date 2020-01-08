@@ -25,7 +25,7 @@ I started implementing [this nice tutorial](https://cqrs.nu/tutorial/cs/01-desig
 
 I also explored the microfrontends approach in the `/example/micro-frontend/` page.
 
-I am now implementing the same tutorial as a [react web application](https://github.com/subway-js/subway-react-example).
+I am now implementing the same tutorial as a [react web application](https://github.com/subway-js/subway-react-restaurant).
 
 **Next steps will be:**
 - implement an actual use case e.g. web page with authentication, navigation, etc. to see how the model adapt to a real use case
