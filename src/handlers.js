@@ -69,10 +69,10 @@ const runHandler = (
       );
 
       let _aggregateState = getAggregateState(aggregateName);
-      handlers.forEach(handler => {
+      handlers.forEach(async handler => {
         try {
           const { proposal = null, events = null } =
-            handler.run(_aggregateState, payload) || {};
+            (await handler.run(_aggregateState, payload)) || {};
           if (isCommand && proposal)
             throw Error("Command cannot change aggregate state");
           // TODO save state if accepted
