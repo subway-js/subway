@@ -7,7 +7,8 @@ import {
 
 import {
   setCommandHandler as _setCommandHandler,
-  setEventHandler as _setEventHandler
+  setEventHandler as _setEventHandler,
+  react
 } from "./handlers";
 
 import { sendCommand as _sendCommand, spy as _spy } from "./messaging";
@@ -45,6 +46,7 @@ const createAggregate = (aggregateName, model = {}) => {
 const Subway = {
   createAggregate,
   selectAggregate,
+  react,
   helpers: {
     composeMicroFrontends: _init,
     installMicroFrontend: _connect

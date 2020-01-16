@@ -3,7 +3,7 @@ import { getAggregateState, updateAggregateState } from "./aggregates";
 const _topicCommandHandlers = new Map();
 const _topicEventHandlers = new Map();
 
-const setHandler = (topicHandlersMap, aggregateName) => {
+const setHandler = (isCommand, topicHandlersMap, aggregateName) => {
   return (messageType, run, onError = null) => {
     if (!topicHandlersMap.has(aggregateName)) {
       topicHandlersMap.set(aggregateName, new Map());
@@ -35,13 +35,20 @@ const setHandler = (topicHandlersMap, aggregateName) => {
   };
 };
 
+// TODO reactOnce
+const reactors = new Map();
+export const react = ({ onEvent, triggeredEvent, withPayload = p => p }) => {
+  // TODO check event format AGGREGATE.EVENT
+  reactors.set(onEvent, [{ triggeredEvent, withPayload }]);
+};
+
 export const setCommandHandler = aggregateName => {
   // TODO NO SIDE EFFECTS in command handlers
-  return setHandler(_topicCommandHandlers, aggregateName);
+  return setHandler(true, _topicCommandHandlers, aggregateName);
 };
 
 export const setEventHandler = aggregateName => {
-  return setHandler(_topicEventHandlers, aggregateName);
+  return setHandler(false, _topicEventHandlers, aggregateName);
 };
 
 const runHandler = (
@@ -102,6 +109,19 @@ const runHandler = (
         }
       });
     }
+  }
+
+  if (!isCommand && reactors.has(`${aggregateName}.${messageType}`)) {
+    reactors
+      .get(`${aggregateName}.${messageType}`)
+      .forEach(({ triggeredEvent, withPayload }) => {
+        const eventDetails = triggeredEvent.split(".");
+        let targetAggregate =
+          eventDetails.length === 1 ? aggregateName : eventDetails[0];
+        let targetEvent =
+          eventDetails.length === 1 ? eventDetails[0] : eventDetails[1];
+        triggerEvent(targetAggregate, targetEvent, withPayload(payload));
+      });
   }
 };
 

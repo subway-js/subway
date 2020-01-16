@@ -204,6 +204,27 @@ Subway
 
 You can either spy all commands and events (e.g. `spy('*', ...)`), or specify one (e.g. `spy('COUNTER_READY', ...)`)
 
+
+### 5. React
+
+If we want to do something as a result of an event in another aggregate, the steps are:
+- in aggregate B, spy aggregate A for the event E
+- once the spy callback is fired, send an aggregate command like B.notify_event_E_from_A
+- a command handler should receive this, and trigger an event like B.event_E_from_A_fired
+
+We can make this shorter by using the `react` function:
+
+```js
+Subway
+  .react({
+    onEvent: "AGGREGATE.EVENT_A",
+    triggeredEvent: "ANOTHER_AGGREGATE.EVENT_B",
+    withPayload: (EVENT_A_PAYLOAD) => {
+      // return payload for EVENT_B
+    }
+    });
+```
+
 ### Micro-frontends
 
 Check the [micro-frontends example](https://github.com/subway-js/subway/tree/master/examples/micro-frontends) for the full code.
