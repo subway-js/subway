@@ -8,36 +8,35 @@ Subway is a personal project from [danilorossi](https://github.com/danilorossi) 
 
 ## Background
 
-While working as FE Architect a few years ago, I had the luck to face a very challenging problem that led me and my team designing and implementing what is now called a 'micro-frontends' architecture - we didn't really know at that time, it was around 2016.
+While working as FE Architect a few years ago, I had the luck to face a very challenging problem that led me and my team to design and implementing what is now called a 'micro-frontends' architecture - it was around 2016.
 
-At the same time, I have been lucky enough to work very closely to some great BE engineers implementing a backend system with a DDD approach, CQRS, microservices, a message broker, and so on.
+At the same time, I have been lucky enough to work very closely to some great backend engineers implementing a distributed and scalable backend system with a DDD & CQRS approach.
 
-After that, as an engineering manager, I also understood how microservices and microfrontends - and we could also mention DevOps and Domain Driven Design - are not only a technical answer to technical problems: they are also a technical answer to 'people' and management problems.
+After that, as an engineering manager, I also understood how those technical approaches are not only an answer to technical problems: they are also an answer to 'people' and management problems.
 
 With this project, I want to explore how the approach that I found so valuable and interesting in the backend can be applied on the frontend as a way to:
-- implement a micro-frontend approach
-- describe a system in a way that is easily understandable, manageable and expandable, for monolithic frontends as well as micro-frontends
-- keep coding :) which I don´t do anymore working as a Delivery Manager
+- describe a system in a way that is easily understandable, manageable and expandable
+- a micro-frameworks-friendly framework for frontend systems
 
-## Current status
+## Status
 
-I started implementing [this nice tutorial](https://cqrs.nu/tutorial/cs/01-design) as a simple HTML application (check the `/example/event-sourcing/` folder) to investigate the model, the API and the overall idea and design.
+This is a work in progress, that is evolving based on the projects I am working on in the [SubwayJS](https://github.com/subway-js) github account.
 
-I also explored the microfrontends approach in the `/example/micro-frontend/` page.
+- I started implementing [this interesting tutorial](https://cqrs.nu/tutorial/cs/01-design) as a simple HTML application (`/example/event-sourcing/`) to investigate how this library could work, the APIs and the overall idea and design. I also explored the microfrontends approach in the `/example/micro-frontend/` page.
 
-I am now implementing the same tutorial as a [react web application](https://github.com/subway-js/subway-react-restaurant).
+- I implemented the same tutorial as a [react web application](https://github.com/subway-js/subway-react-restaurant).
 
-**Next steps will be:**
-- implement an actual use case e.g. web page with authentication, navigation, etc. to see how the model adapt to a real use case
-- implement the same web application with micro frontends
+- I started implementing an actual use case, an [ecommerce react website](https://github.com/subway-js/subway-react-ecommerce), to keep investigating the shape of this library, and also to start thinking about a possible subway-react utility library.
 
-This project touches many topics, and I am going to use this example-based approach to find a good answer to such topics, e.g.:
+- At the moment I am working on that, and I plan to implement the same ecommerce application with microfrontends.
+
+This project touches many topics, and I am going to use this example-based approach to find a good answer for:
 - *state management*: mutable or immutable? If mutable, how can SAM architecture inspire the framework?
 - *events store*: do we need one? How do we manage offline and page reload? How do we synch with the backend?
-- *async* command/event handlers
 - is this framework *performant*, or is there any bottleneck? How to integrate *WebWorkers*?
+- what's the best API and how can I translate DDD terminology to the frontend context?
 
-Plus many others that will show up during this investigation.
+Plus many others that I will surely face during this investigation.
 
 ## Installation
 
@@ -62,6 +61,8 @@ The model and  API can (and will) change based on the on-going investigation: th
 - the ability to **observe** an aggregate's state, in order to be notified when a change happens
 
 - the ability to **spy** on any aggregate message bus, to listen to events and react accordingly
+
+- a way to **trigger events** as a result of other events from a different aggregate
 
 - a **micro-frontends** orchestration utility, implemented with the same SubwayJS library through aggregates, commands and events
 
@@ -205,23 +206,38 @@ Subway
 You can either spy all commands and events (e.g. `spy('*', ...)`), or specify one (e.g. `spy('COUNTER_READY', ...)`)
 
 
-### 5. React
+### 6. Automatic trigger on event
 
 If we want to do something as a result of an event in another aggregate, the steps are:
 - in aggregate B, spy aggregate A for the event E
 - once the spy callback is fired, send an aggregate command like B.notify_event_E_from_A
 - a command handler should receive this, and trigger an event like B.event_E_from_A_fired
 
-We can make this shorter by using the `react` function:
+We can make this shorter by using the `triggerOn` function:
 
 ```js
+
 Subway
-  .react({
-    onEvent: "AGGREGATE.EVENT_A",
-    triggeredEvent: "ANOTHER_AGGREGATE.EVENT_B",
-    withPayload: (EVENT_A_PAYLOAD) => {
-      // return payload for EVENT_B
-    }
+  .selectAggregate("AggregateB")
+  .triggerAfter("Event1 ", {
+      targetAggregate: "AggregateA",
+      triggeredEvent: 'Event2',
+      withPayload: (event1Payload) => event2Payload
+    });
+```
+
+The parameter `withPayload` is optional: if not specified, the same payload will be used for the triggered event.
+
+The parameter `targetAggregate` is optional: if not specified, the source aggregate will be used as target aggregate.
+
+This can be useful to create chain of events inside the same aggregate, when no business logic is required in between, as a short alternative to eventHandlers:
+
+```js
+
+Subway
+  .selectAggregate("MyAggregate")
+  .triggerAfter("Event ", {
+      triggeredEvent: 'AfterEvent',
     });
 ```
 

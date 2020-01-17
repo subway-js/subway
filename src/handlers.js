@@ -36,10 +36,16 @@ const setHandler = (isCommand, topicHandlersMap, aggregateName) => {
 };
 
 // TODO reactOnce
+// TODO react on Aggregate.*
 const reactors = new Map();
-export const react = ({ onEvent, triggeredEvent, withPayload = p => p }) => {
+export const react = aggregateName => (
+  sourceEvent,
+  { targetAggregate = null, triggeredEvent, withPayload = p => p }
+) => {
   // TODO check event format AGGREGATE.EVENT
-  reactors.set(onEvent, [{ triggeredEvent, withPayload }]);
+  reactors.set(`${aggregateName}.${sourceEvent}`, [
+    { targetAggregate, triggeredEvent, withPayload }
+  ]);
 };
 
 export const setCommandHandler = aggregateName => {
@@ -114,13 +120,17 @@ const runHandler = (
   if (!isCommand && reactors.has(`${aggregateName}.${messageType}`)) {
     reactors
       .get(`${aggregateName}.${messageType}`)
-      .forEach(({ triggeredEvent, withPayload }) => {
-        const eventDetails = triggeredEvent.split(".");
-        let targetAggregate =
-          eventDetails.length === 1 ? aggregateName : eventDetails[0];
-        let targetEvent =
-          eventDetails.length === 1 ? eventDetails[0] : eventDetails[1];
-        triggerEvent(targetAggregate, targetEvent, withPayload(payload));
+      .forEach(({ targetAggregate, triggeredEvent, withPayload }) => {
+        // const eventDetails = triggeredEvent.split(".");
+        // let targetAggregate =
+        //   eventDetails.length === 1 ? aggregateName : eventDetails[0];
+        // let targetEvent =
+        //   eventDetails.length === 1 ? eventDetails[0] : eventDetails[1];
+        triggerEvent(
+          targetAggregate ? targetAggregate : aggregateName,
+          triggeredEvent,
+          withPayload(payload)
+        );
       });
   }
 };

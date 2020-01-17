@@ -8,7 +8,7 @@ import {
 import {
   setCommandHandler as _setCommandHandler,
   setEventHandler as _setEventHandler,
-  react
+  react as _react
 } from "./handlers";
 
 import { sendCommand as _sendCommand, spy as _spy } from "./messaging";
@@ -19,7 +19,6 @@ import {
 } from "./helpers/microfrontends/index";
 
 const getApi = aggregateName => ({
-  spy: _spy(aggregateName),
   // TODO return state on first subscribe
   observeState: _observeState(aggregateName),
   sendCommand: _sendCommand(aggregateName),
@@ -32,7 +31,9 @@ const selectAggregate = aggregateName => {
     throw Error(`Topic '${aggregateName}' does not exist`);
   }
   return {
-    ...getApi(aggregateName)
+    ...getApi(aggregateName),
+    spy: _spy(aggregateName),
+    triggerAfter: _react(aggregateName)
   };
 };
 
@@ -46,7 +47,6 @@ const createAggregate = (aggregateName, model = {}) => {
 const Subway = {
   createAggregate,
   selectAggregate,
-  react,
   helpers: {
     composeMicroFrontends: _init,
     installMicroFrontend: _connect
