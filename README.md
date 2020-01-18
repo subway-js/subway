@@ -306,7 +306,7 @@ Subway
 
 ## Concepts
 
-**TO DO: a quick introduction to the main concept that inspire SubayJS, such as:**
+**TO DO: a quick introduction to the main concept that inspire SubwayJS, such as:**
 - DDD concepts
 - event sourcing concepts
 - CQRS Concepts

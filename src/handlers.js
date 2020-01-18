@@ -3,7 +3,7 @@ import { getAggregateState, updateAggregateState } from "./aggregates";
 const _topicCommandHandlers = new Map();
 const _topicEventHandlers = new Map();
 
-const setHandler = (isCommand, topicHandlersMap, aggregateName) => {
+export const setHandler = (isCommand, topicHandlersMap, aggregateName) => {
   return (messageType, run, onError = null) => {
     if (!topicHandlersMap.has(aggregateName)) {
       topicHandlersMap.set(aggregateName, new Map());

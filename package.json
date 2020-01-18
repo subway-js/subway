@@ -22,22 +22,21 @@
   "devDependencies": {
     "@babel/core": "7.7.2",
     "@babel/preset-env": "7.7.1",
+    "babel-jest": "24.9.0",
+    "jest": "24.9.0",
     "prettier": "1.19.1",
     "rollup": "^1.20.0",
     "rollup-plugin-babel": "4.3.3",
-    "rollup-plugin-terser": "5.1.2"
+    "rollup-plugin-terser": "5.2.0"
   },
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "test": "node test/test.js",
+    "test": "jest --coverage",
     "pretest": "npm run build",
     "prettier": "npx prettier --write src/**",
     "deploy.npm": "npm publish --access public"
   },
-  "files": [
-    "dist"
-  ],
   "husky": {
     "hooks": {
       "pre-commit": "pretty-quick --staged"
@@ -45,5 +44,18 @@
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
+  },
+  "jest": {
+    "verbose": true,
+    "testRegex": "(/__tests__/.*|\\.(test|spec|react-test))\\.(js|jsx)$",
+    "moduleFileExtensions": [
+      "js"
+    ],
+    "globals": {
+      "NODE_ENV": "test"
+    },
+    "testPathIgnorePatterns": [
+      "node_modules"
+    ]
   }
 }

@@ -8,5 +8,10 @@
         "targets": {}
       }
     ]
-  ]
+  ],
+  "env": {
+    "test": {
+      "presets": [["@babel/preset-env"]]
+    }
+  }
 }
