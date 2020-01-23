@@ -241,6 +241,20 @@ Subway
     });
 ```
 
+It is also possible to listen to a specific event no matter the source aggregate, so that we can create an aggregate that can handle a specific message - sort of an API, e.g.:
+
+```js
+
+Subway
+  .selectAggregate("*")
+  .triggerAfter("LoginModalRequestSubmitted ", {
+    targetAggregate: 'AggregateA'
+      triggeredEvent: 'LoginModalVisibilityRequested',
+    });
+```
+
+In this case, it is mandatory to specify the target aggregate.
+
 ### Micro-frontends
 
 Check the [micro-frontends example](https://github.com/subway-js/subway/tree/master/examples/micro-frontends) for the full code.

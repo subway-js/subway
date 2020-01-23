@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1579340506591" clover="3.2.0">
-  <project timestamp="1579340506592" name="All files">
+<coverage generated="1579370340585" clover="3.2.0">
+  <project timestamp="1579370340585" name="All files">
     <metrics statements="72" coveredstatements="17" conditionals="48" coveredconditionals="0" methods="23" coveredmethods="0" elements="143" coveredelements="17" complexity="0" loc="72" ncloc="72" packages="1" files="2" classes="2"/>
     <file name="aggregates.js" path="/Users/danilo/Development/SubwayJS/subway/src/aggregates.js">
       <metrics statements="25" coveredstatements="7" conditionals="15" coveredconditionals="0" methods="8" coveredmethods="0"/>

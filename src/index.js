@@ -27,7 +27,7 @@ const getApi = aggregateName => ({
 });
 
 const selectAggregate = aggregateName => {
-  if (!_aggregateExists(aggregateName)) {
+  if (aggregateName !== "*" && !_aggregateExists(aggregateName)) {
     throw Error(`Topic '${aggregateName}' does not exist`);
   }
   return {

@@ -117,10 +117,18 @@ const runHandler = (
     }
   }
 
-  if (!isCommand && reactors.has(`${aggregateName}.${messageType}`)) {
-    reactors
-      .get(`${aggregateName}.${messageType}`)
-      .forEach(({ targetAggregate, triggeredEvent, withPayload }) => {
+  if (
+    !isCommand &&
+    (reactors.has(`${aggregateName}.${messageType}`) ||
+      reactors.has(`*.${messageType}`))
+  ) {
+    const aggregateReactors =
+      reactors.get(`${aggregateName}.${messageType}`) || [];
+
+    const allReactors = reactors.get(`*.${messageType}`) || [];
+
+    [...allReactors, ...aggregateReactors].forEach(
+      ({ targetAggregate, triggeredEvent, withPayload }) => {
         // const eventDetails = triggeredEvent.split(".");
         // let targetAggregate =
         //   eventDetails.length === 1 ? aggregateName : eventDetails[0];
@@ -131,7 +139,8 @@ const runHandler = (
           triggeredEvent,
           withPayload(payload)
         );
-      });
+      }
+    );
   }
 };
 
