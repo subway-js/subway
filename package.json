@@ -1,6 +1,6 @@
 {
   "name": "@subway-js/subway",
-  "version": "0.5.1",
+  "version": "0.6.1",
   "description": "Subway is a personal project from [danilorossi](https://github.com/danilorossi) that explores the idea of bringing **event sourcing & CQRS** to the browser for micro-frontends development.",
   "repository": {
     "type": "git",

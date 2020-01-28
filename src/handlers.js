@@ -118,9 +118,8 @@ const runHandler = (
   }
 
   if (
-    !isCommand &&
-    (reactors.has(`${aggregateName}.${messageType}`) ||
-      reactors.has(`*.${messageType}`))
+    reactors.has(`${aggregateName}.${messageType}`) ||
+    reactors.has(`*.${messageType}`)
   ) {
     const aggregateReactors =
       reactors.get(`${aggregateName}.${messageType}`) || [];

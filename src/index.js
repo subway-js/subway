@@ -30,11 +30,17 @@ const selectAggregate = aggregateName => {
   if (aggregateName !== "*" && !_aggregateExists(aggregateName)) {
     throw Error(`Topic '${aggregateName}' does not exist`);
   }
-  return {
-    ...getApi(aggregateName),
-    spy: _spy(aggregateName),
-    triggerAfter: _react(aggregateName)
-  };
+  if (aggregateName === "*") {
+    return {
+      triggerAfter: _react(aggregateName)
+    };
+  } else {
+    return {
+      ...getApi(aggregateName),
+      spy: _spy(aggregateName),
+      triggerAfter: _react(aggregateName)
+    };
+  }
 };
 
 const createAggregate = (aggregateName, model = {}) => {
@@ -44,9 +50,18 @@ const createAggregate = (aggregateName, model = {}) => {
   };
 };
 
+const _respondToCommand = (
+  sourceEvent,
+  { targetAggregate = null, triggeredEvent, withPayload = p => p }
+) => {
+  _react('*')(sourceEvent,
+  { targetAggregate, triggeredEvent, withPayload })
+}
+
 const Subway = {
   createAggregate,
   selectAggregate,
+  respondToCommand: _respondToCommand,
   helpers: {
     composeMicroFrontends: _init,
     installMicroFrontend: _connect

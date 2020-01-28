@@ -255,6 +255,19 @@ Subway
 
 In this case, it is mandatory to specify the target aggregate.
 
+### 7. Respond to external commands
+
+As an alternative to `selectAggregate("*").triggerAfter(...)`, we can use the `respondToCommand` helper function, as a preferred way to declare
+the **public** interface of our aggregate:
+
+ ```js
+ Subway
+   .respondToCommand("SHOW_LOGIN_MODAL ", {
+      targetAggregate: 'SessionAggregate'
+       triggeredEvent: 'LoginModalRequested',
+     });
+ ```
+
 ### Micro-frontends
 
 Check the [micro-frontends example](https://github.com/subway-js/subway/tree/master/examples/micro-frontends) for the full code.
