@@ -1,71 +1,78 @@
-import {
-  createAggregate as _createAggregate,
-  getAggregateState as _getAggregateState,
-  aggregateExists as _aggregateExists,
-  observeState as _observeState
-} from "./aggregates";
 
 import {
-  setCommandHandler as _setCommandHandler,
-  setEventHandler as _setEventHandler,
-  react as _react
-} from "./handlers";
+  AGGREGATES_API_BUS,
+  SYMBOL_ALL
+} from './globals';
 
-import { sendCommand as _sendCommand, spy as _spy } from "./messaging";
+import * as AggregateManager from './core/api';
 
-import {
-  init as _init,
-  connect as _connect
-} from "./helpers/microfrontends/index";
-
-const getApi = aggregateName => ({
-  // TODO return state on first subscribe
-  observeState: _observeState(aggregateName),
-  sendCommand: _sendCommand(aggregateName),
-  setCommandHandler: _setCommandHandler(aggregateName),
-  setEventHandler: _setEventHandler(aggregateName)
-});
-
-const selectAggregate = aggregateName => {
-  if (aggregateName !== "*" && !_aggregateExists(aggregateName)) {
-    throw Error(`Topic '${aggregateName}' does not exist`);
-  }
-  if (aggregateName === "*") {
-    return {
-      triggerAfter: _react(aggregateName)
-    };
-  } else {
-    return {
-      ...getApi(aggregateName),
-      spy: _spy(aggregateName),
-      triggerAfter: _react(aggregateName)
-    };
-  }
-};
+const ReservedNames = [ AGGREGATES_API_BUS, SYMBOL_ALL ];
 
 const createAggregate = (aggregateName, model = {}) => {
+  if(ReservedNames.contains(aggregateName)) {
+    throw Error(`Aggregate name '${aggregateName}' is a reserved namespace`);
+  }
   _createAggregate(aggregateName, model);
   return {
-    ...getApi(aggregateName)
+    ...getAggregateApi(aggregateName)
   };
 };
 
-const _respondToCommand = (
-  sourceEvent,
-  { targetAggregate = null, triggeredEvent, withPayload = p => p }
-) => {
-  _react('*')(sourceEvent,
-  { targetAggregate, triggeredEvent, withPayload })
-}
+const selectAggregate = aggregateName => {
+  if(ReservedNames.contains(aggregateName)) {
+    throw Error(`Aggregate name '${aggregateName}' is a reserved namespace`);
+  }
+  if (!_aggregateExists(aggregateName)) {
+    throw Error(`Aggregate '${aggregateName}' does not exist`);
+  }
+  return {
+    ...getAggregateApi(aggregateName),
+    // spy: _spy(aggregateName),
+    // triggerAfter: _react(aggregateName)
+  };
+};
+//
+// const getAggregateApi = aggregateName => ({
+//   setEventHandler: () => {},
+//   unsetEventHandler: () => {},
+//   setCommandHandler: () => {},
+//   unsetCommandHandler: () => {},
+//   sendCommand: () => {},
+//   observeState: () => {},
+//   configureApi: getPublicApi(aggregateName)
+// });
+//
+// const getPublicApi = aggregateName => ({
+//   publishCommandHandler: () => {},
+//   unpublishCommandHandler: () => {},
+//   exposeEvents: [],
+//   exposeComponent: () => {},
+// });
 
 const Subway = {
-  createAggregate,
-  selectAggregate,
-  respondToCommand: _respondToCommand,
-  helpers: {
-    composeMicroFrontends: _init,
-    installMicroFrontend: _connect
+  createAggregate: AggregateManager.createAggregate,
+  selectAggregate: AggregateManager.selectAggregate,
+  broadcastCommand: AggregateManager.broadcastCommand,
+  consumeEvent: AggregateManager.consumeEvent,
+  stopConsumingEvent: AggregateManager.stopConsumingEvent,
+
+  $dev: {
+    spy: () => {},
+    observAggregateState: () => {},
+  },
+
+  $helpers: {
+    composeMicroFrontends: () => {},//_init,
+    installMicroFrontend: () => {},//_connect
   }
 };
+
+//
+// Rule 1: each aggregate lives inside an '/aggregates/aggregateName' folder
+// Rule 2: code inside '/aggregates/xxx' should never call
+//         selectAggregate() or createAggregate() with something different than 'xxx'
+// Rule 3: code inside '/aggregates/xxx' should never explicitely
+//         import anything from other aggregates folders e.g. '../aggregates/yyy'
+
 
 export default Subway;
