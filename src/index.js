@@ -4,10 +4,10 @@ import {
   SYMBOL_ALL
 } from './globals';
 
-// import {
-//   init,
-//   connectº
-// } from './helpers/microfrontends/index';
+import {
+  init,
+  connect
+} from './helpers/microfrontends/index';
 
 import * as AggregateManager from './core/api';
 
@@ -67,8 +67,8 @@ const Subway = {
   },
 
   $helpers: {
-    composeMicroFrontends: () => {},// init,
-    installMicroFrontend: () => {},//connect
+    composeMicroFrontends: init,
+    installMicroFrontend: connect
   }
 };
 

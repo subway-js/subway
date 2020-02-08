@@ -1,22 +1,23 @@
-import { createAggregate } from "../../aggregates";
+export {
+  createAggregate,
+} from '../../entities/index';
+
 import { injectMicrofrontends } from "./utils/loader";
-import { sendCommand, spy } from "../../messaging";
-import { setCommandHandler, setEventHandler } from "../../handlers";
 
 import { AGGREGATE } from "./globals/aggregates";
 import { CMD } from "./globals/commands";
 import { EVT } from "./globals/events";
 
-let unsubscribeFnsSet = new Set();
-
+// let unsubscribeFnsSet = new Set();
+let mfAggregate = null;
 export const init = mfConfig => {
-  const rootAggregate = createAggregate(AGGREGATE.MF_ROOT, {
+  mfAggregate = createAggregate(AGGREGATE.MF_ROOT, {
     initialized: false,
     loaded: [],
     pending: [...mfConfig.mfs]
   });
 
-  const unsubCmdConnectMf = setCommandHandler(AGGREGATE.MF_ROOT)(
+  const unsubCmdConnectMf = mfAggregate.setCommandHandler(
     CMD.CONNECT_MF,
     (topicState, { id }) => {
       if (topicState.initialized)
@@ -34,9 +35,9 @@ export const init = mfConfig => {
     }
   );
 
-  unsubscribeFnsSet.add(unsubCmdConnectMf);
+  // unsubscribeFnsSet.add(unsubCmdConnectMf);
 
-  const unsubEvtMfConnected = setEventHandler(AGGREGATE.MF_ROOT)(
+  const unsubEvtMfConnected = mfAggregate.setEventHandler(
     EVT.MF_CONNECTED,
     (topicState, targetMf) => {
       const returnValue = {
@@ -55,9 +56,9 @@ export const init = mfConfig => {
       console.log(JSON.stringify(error, undefined, 4));
     }
   );
-  unsubscribeFnsSet.add(unsubEvtMfConnected);
+  // unsubscribeFnsSet.add(unsubEvtMfConnected);
 
-  const unsubEvtMfNotified = setEventHandler(AGGREGATE.MF_ROOT)(
+  const unsubEvtMfNotified = mfAggregate.setEventHandler(
     EVT.ALL_MFS_CONNECTED,
     topicState => {
       let events = [];
@@ -67,7 +68,10 @@ export const init = mfConfig => {
       });
 
       // TODO Array.from(unsubscribeFnsSet).forEach(fn => fn())
-      unsubscribeFnsSet = null;
+      // unsubscribeFnsSet = null;
+      mfAggregate.removeCommandHandler(CMD.CONNECT_MF);
+      mfAggregate.removeEventHandler(EVT.MF_CONNECTED);
+      mfAggregate.removeEventHandler(EVT.ALL_MFS_CONNECTED,);
 
       return {
         proposal: {
@@ -81,18 +85,27 @@ export const init = mfConfig => {
       console.log(JSON.stringify(error, undefined, 4));
     }
   );
-  unsubscribeFnsSet.add(unsubEvtMfNotified);
+  // unsubscribeFnsSet.add(unsubEvtMfNotified);
 
   injectMicrofrontends([...mfConfig.mfs].filter(mf => mf.src));
 };
 
 export const connect = (microFrontendId, onConnected) => {
-  const unsubscribe = spy(AGGREGATE.MF_ROOT)(EVT.MF_ACK_SENT(microFrontendId), {
-    next: payload => {
-      // TODO unsubscribe();
-      onConnected(payload);
-    }
-  });
+  const HACK_EVENT = EVT.MF_ACK_SENT(microFrontendId);
 
-  sendCommand(AGGREGATE.MF_ROOT)(CMD.CONNECT_MF, { id: microFrontendId });
+  mfAggregate.setEventHandler(
+    HACK_EVENT,
+    (topicState, payload) => {
+      onConnected(payload);
+      mfAggregate.removeEventHandler(HACK_EVENT)
+    }
+  )
+  // const unsubscribe = spy(AGGREGATE.MF_ROOT)(EVT.MF_ACK_SENT(microFrontendId), {
+  //   next: payload => {
+  //     // TODO unsubscribe();
+  //     onConnected(payload);
+  //   }
+  // });
+
+  mfAggregate.sendCommand(CMD.CONNECT_MF, { id: microFrontendId });
 };
