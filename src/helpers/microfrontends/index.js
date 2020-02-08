@@ -6,8 +6,7 @@ import { injectMicrofrontends } from "./utils/loader";
 
 import { CMD } from "./verbs/commands";
 import { EVT } from "./verbs/events";
-
-const MF_AGGREGATE_NAME = "MF_ROOT"
+import { MF_AGGREGATE_NAME } from '../../globals';
 
 let mfAggregate = null;
 

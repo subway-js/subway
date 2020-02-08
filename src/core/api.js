@@ -6,6 +6,14 @@ import {
   getSystemAggregateApi,
 } from './bus/api';
 
+import {
+  AGGREGATES_API_BUS,
+  SYMBOL_ALL,
+  MF_AGGREGATE_NAME
+} from '../globals';
+
+const ReservedNames = [ AGGREGATES_API_BUS, SYMBOL_ALL ];
+
 const systemAggregate = getSystemAggregate();
 
 const buildAggregateApi = (aggregate, systemAggregate) => ({
@@ -16,11 +24,17 @@ const buildAggregateApi = (aggregate, systemAggregate) => ({
 })
 
 export const createAggregate = (name, initialState) => {
+  if(ReservedNames.includes(name)) {
+    throw Error(`Aggregate name '${aggregateName}' is a reserved namespace`);
+  }
   const aggregate = AggregateStore.createAggregate(name, initialState);
   return buildAggregateApi(aggregate, systemAggregate);
 }
 
 export const selectAggregate = (name) => {
+  if(ReservedNames.includes(name)) {
+    throw Error(`Aggregate name '${aggregateName}' is a reserved namespace`);
+  }
   const aggregate = AggregateStore.getAggregate(name);
   return buildAggregateApi(aggregate, systemAggregate);
 }
