@@ -1,31 +1,33 @@
-export {
+import {
   createAggregate,
 } from '../../entities/index';
 
 import { injectMicrofrontends } from "./utils/loader";
 
-import { AGGREGATE } from "./globals/aggregates";
-import { CMD } from "./globals/commands";
-import { EVT } from "./globals/events";
+import { CMD } from "./verbs/commands";
+import { EVT } from "./verbs/events";
 
-// let unsubscribeFnsSet = new Set();
+const MF_AGGREGATE_NAME = "MF_ROOT"
+
 let mfAggregate = null;
+
 export const init = mfConfig => {
-  mfAggregate = createAggregate(AGGREGATE.MF_ROOT, {
+  mfAggregate = createAggregate(MF_AGGREGATE_NAME, {
     initialized: false,
     loaded: [],
     pending: [...mfConfig.mfs]
   });
 
-  const unsubCmdConnectMf = mfAggregate.setCommandHandler(
+  mfAggregate.addCommandHandler(
     CMD.CONNECT_MF,
-    (topicState, { id }) => {
-      if (topicState.initialized)
+    ({ state, payload }) => {
+      const mfId = payload.id;
+      if (state.initialized)
         throw Error("Microfrontends have already been initialized.");
-      if (topicState.loaded.filter(mf => mf.id === id).length > 0)
-        throw Error(`Microfrontend "${id}" has already been initialized.`);
+      if (state.loaded.filter(mf => mf.id === mfId).length > 0)
+        throw Error(`Microfrontend "${mfId}" has already been initialized.`);
 
-      const targetMf = topicState.pending.filter(mf => mf.id === id)[0];
+      const targetMf = state.pending.filter(mf => mf.id === mfId)[0];
       return {
         events: [{ id: EVT.MF_CONNECTED, payload: targetMf }]
       };
@@ -35,20 +37,19 @@ export const init = mfConfig => {
     }
   );
 
-  // unsubscribeFnsSet.add(unsubCmdConnectMf);
-
-  const unsubEvtMfConnected = mfAggregate.setEventHandler(
+  mfAggregate.addEventHandler(
     EVT.MF_CONNECTED,
-    (topicState, targetMf) => {
+    ({state, payload}) => {
+      const { id } = payload;
       const returnValue = {
         proposal: {
-          ...topicState,
-          loaded: topicState.loaded.concat(targetMf),
-          pending: topicState.pending.filter(mf => mf.id !== targetMf.id)
+          ...state,
+          loaded: state.loaded.concat(payload),
+          pending: state.pending.filter(mf => mf.id !== id)
         }
       };
       if (returnValue.proposal.pending.length === 0) {
-        returnValue.events = [{ id: EVT.ALL_MFS_CONNECTED, payload: targetMf }];
+        returnValue.events = [{ id: EVT.ALL_MFS_CONNECTED, payload: payload }];
       }
       return returnValue;
     },
@@ -56,26 +57,23 @@ export const init = mfConfig => {
       console.log(JSON.stringify(error, undefined, 4));
     }
   );
-  // unsubscribeFnsSet.add(unsubEvtMfConnected);
 
-  const unsubEvtMfNotified = mfAggregate.setEventHandler(
+  mfAggregate.addEventHandler(
     EVT.ALL_MFS_CONNECTED,
-    topicState => {
+    ({state}) => {
       let events = [];
 
-      topicState.loaded.forEach(mf => {
+      state.loaded.forEach(mf => {
         events = events.concat({ id: EVT.MF_ACK_SENT(mf.id), payload: mf });
       });
 
-      // TODO Array.from(unsubscribeFnsSet).forEach(fn => fn())
-      // unsubscribeFnsSet = null;
       mfAggregate.removeCommandHandler(CMD.CONNECT_MF);
       mfAggregate.removeEventHandler(EVT.MF_CONNECTED);
       mfAggregate.removeEventHandler(EVT.ALL_MFS_CONNECTED,);
 
       return {
         proposal: {
-          ...topicState,
+          ...state,
           initialized: true
         },
         events
@@ -85,7 +83,6 @@ export const init = mfConfig => {
       console.log(JSON.stringify(error, undefined, 4));
     }
   );
-  // unsubscribeFnsSet.add(unsubEvtMfNotified);
 
   injectMicrofrontends([...mfConfig.mfs].filter(mf => mf.src));
 };
@@ -93,19 +90,13 @@ export const init = mfConfig => {
 export const connect = (microFrontendId, onConnected) => {
   const HACK_EVENT = EVT.MF_ACK_SENT(microFrontendId);
 
-  mfAggregate.setEventHandler(
+  mfAggregate.addEventHandler(
     HACK_EVENT,
-    (topicState, payload) => {
+    ({payload}) => {
       onConnected(payload);
       mfAggregate.removeEventHandler(HACK_EVENT)
     }
   )
-  // const unsubscribe = spy(AGGREGATE.MF_ROOT)(EVT.MF_ACK_SENT(microFrontendId), {
-  //   next: payload => {
-  //     // TODO unsubscribe();
-  //     onConnected(payload);
-  //   }
-  // });
 
   mfAggregate.sendCommand(CMD.CONNECT_MF, { id: microFrontendId });
 };
