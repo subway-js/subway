@@ -9,6 +9,7 @@ export const getSystemAggregateApi = (systemAggregate, sourceAggregate) => ({
     sourceAggregate.exposeEvents(eventTypes, (type, payload) => {
       systemAggregate.sendEvent(type, payload)
     })
-  }
+  },
+  // TODO exposeComponent
 
 })

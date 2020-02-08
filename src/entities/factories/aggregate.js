@@ -1,16 +1,16 @@
 import {
   canHandleMessages
-} from './mixins/canHandleMessages';
+} from '../mixins/canHandleMessages';
 import {
   hasObservableState
-} from './mixins/hasObservableState';
+} from '../mixins/hasObservableState';
 import {
   canExposeEvents
-} from './mixins/canExposeEvents';
+} from '../mixins/canExposeEvents';
 
 import {
   AGGREGATES_API_BUS
-} from '../globals';
+} from '../../globals';
 
 export const createAggregate = (name, initialState) => {
   const self = {
@@ -21,11 +21,6 @@ export const createAggregate = (name, initialState) => {
       hasObservableState(self, initialState)
     ),
   );
-  // return {
-  //   ...self,
-  //   ...hasObservableState(self, initialState),
-  //   ...canHandleMessages(self)
-  // }
 }
 
 export const createSystemAggregate = () => {
@@ -33,8 +28,4 @@ export const createSystemAggregate = () => {
     name: AGGREGATES_API_BUS
   }
   return canHandleMessages(self);
-  // return {
-  //   ...self,
-  //   ...canHandleMessages(self)
-  // }
 }

@@ -1,4 +1,4 @@
-import * as AggregateFactory from '../../entities/factory';
+import { createAggregate as callCreateAggregate } from '../../entities/index';
 
 const _aggregatesMap = new Map();
 
@@ -7,7 +7,7 @@ export const createAggregate = (aggregateName, initialState = {}) => {
   if (_aggregatesMap.has(aggregateName)) {
     throw Error(`Aggregate '${aggregateName}' already exists`);
   }
-  const aggregate = AggregateFactory.createAggregate(aggregateName, initialState)
+  const aggregate = callCreateAggregate(aggregateName, initialState)
   _aggregatesMap.set(aggregateName, aggregate);
   return aggregate;
 };

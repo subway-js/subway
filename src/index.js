@@ -4,6 +4,11 @@ import {
   SYMBOL_ALL
 } from './globals';
 
+// import {
+//   init,
+//   connectº
+// } from './helpers/microfrontends/index';
+
 import * as AggregateManager from './core/api';
 
 const ReservedNames = [ AGGREGATES_API_BUS, SYMBOL_ALL ];
@@ -62,8 +67,8 @@ const Subway = {
   },
 
   $helpers: {
-    composeMicroFrontends: () => {},//_init,
-    installMicroFrontend: () => {},//_connect
+    composeMicroFrontends: () => {},// init,
+    installMicroFrontend: () => {},//connect
   }
 };
 
