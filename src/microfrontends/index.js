@@ -1,12 +1,11 @@
 import {
   createAggregate,
-} from '../../entities/index';
+} from '../core/facade';
 
-import { injectMicrofrontends } from "./utils/loader";
+import { injectMicrofrontends } from "./loader";
 
-import { CMD } from "./verbs/commands";
-import { EVT } from "./verbs/events";
-import { MF_AGGREGATE_NAME } from '../../globals';
+import { CMD, EVT } from "./verbs";
+import { MF_AGGREGATE_NAME } from '../globals/internalAggregates';
 
 let mfAggregate = null;
 

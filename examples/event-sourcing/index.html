@@ -74,18 +74,18 @@
         })
         tabAggregate.bus.exposeEvents([EVT.TAB_OPENED])
         setTimeout(() => {
-          Subway.broadcastCommand('PublicCMD', { foo: 'bar' })
+          tabAggregate.broadcastCommand('PublicCMD', { foo: 'bar' })
           setTimeout(() => {
             tabAggregate.bus.removeCommandHandler('PublicCMD')
-            Subway.broadcastCommand('PublicCMD', { foo: 'bar' })
+            tabAggregate.broadcastCommand('PublicCMD', { foo: 'bar' })
           })
 
         }, 1000)
 
-        Subway.consumeEvent(EVT.TAB_OPENED, ({ payload }) => {
+        tabAggregate.consumeEvent(EVT.TAB_OPENED, ({ payload }) => {
           // TODO track origin aggregate?
           console.log('::::::CONSUMING EVENT', payload)
-          Subway.stopConsumingEvent(EVT.TAB_OPENED)
+          tabAggregate.stopConsumingEvent(EVT.TAB_OPENED)
         })
         // -------------------------------------------------------
 

@@ -10,9 +10,9 @@ import {
 
 import {
   AGGREGATES_API_BUS
-} from '../../globals';
+} from '../../../globals/internalAggregates';
 
-export const createAggregate = (name, initialState) => {
+export const createAggregate = (name, initialState, emitToQueue) => {
   const self = {
     name,
   }
@@ -20,12 +20,13 @@ export const createAggregate = (name, initialState) => {
     canExposeEvents(
       hasObservableState(self, initialState)
     ),
+    emitToQueue
   );
 }
 
-export const createSystemAggregate = () => {
+export const createSystemAggregate = (emitToQueue) => {
   const self = {
     name: AGGREGATES_API_BUS
   }
-  return canHandleMessages(self);
+  return canHandleMessages(self, emitToQueue);
 }

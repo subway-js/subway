@@ -11,13 +11,15 @@ export const createMessageQueue = ({ messages = [], onNext = null }) => {
     notifyNextItem = onNext
     flushQueue();
   };
-  const pushMessage = (isCommand, message, sourceAggregate) => {
+  const _pushMessage = (message, sourceAggregate, targetAggregate) => {
+
     messageStore.push({
       id: count++, // TODO needed? generate, not from 0
-      isCommand,
+      // isCommand,
       message,
       meta: {
         sourceAggregate,
+        targetAggregate,
         received: Date.now(),
       }
     });
@@ -26,8 +28,11 @@ export const createMessageQueue = ({ messages = [], onNext = null }) => {
 
   return {
     isEmpty: () => (messageStore.length <= 0),
-    pushCommand: (message, sourceAggregate = null) => pushMessage(true, message, sourceAggregate),
-    pushEvent: (message, sourceAggregate = null) => pushMessage(false, message, sourceAggregate),
+    // pushCommand: (message, sourceAggregate = null) => pushMessage(true, message, sourceAggregate),
+    // pushEvent: (message, sourceAggregate = null) => pushMessage(false, message, sourceAggregate),
+    pushMessage: (message, sourceAggregate, targetAggregate) => {
+      _pushMessage(message, sourceAggregate, targetAggregate)
+    },
     observe: (next) => {
       notifyNextItem = next;
       flushQueue();
