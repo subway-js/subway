@@ -11,7 +11,7 @@ const _aggregatesMap = new Map();
 let _systemAggregate = null;
 
 export const createSystemAggregate = emitToQueue => {
-  _systemAggregate = callCreateSystemAggregate(emitToQueue(AGGREGATES_API_BUS));
+  _systemAggregate = callCreateSystemAggregate(emitToQueue(AGGREGATES_API_BUS, AGGREGATES_API_BUS));
 }
 
 export const createAggregate = (name, initialState = {}, emitToQueue) => {

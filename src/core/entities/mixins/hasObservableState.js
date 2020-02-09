@@ -10,7 +10,6 @@ export const hasObservableState = (self, initialState = {}) => {
       onNextState(state)//({...state}) //{...state} _?
       subscribers.set(subscriptionId, onNextState);
       return () => {
-        console.log('> stop observing')
         subscribers.delete(subscriptionId);
       }
     },

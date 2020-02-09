@@ -11,17 +11,23 @@ import {
 } from './store';
 
 
-const _messageQueue = createMessageQueue({ onNext: ({ id, message, meta }) => {
+const _messageQueue = createMessageQueue({ onNext: payload => {
+  console.table({
+    id: payload.id,
+    isCommand: payload.message.isCommand,
+    type: payload.message.messageType,
+    payload: payload.message.payload,
+    source: payload.meta.sourceAggregate,
+    target: payload.meta.targetAggregate,
+  })
 
-  console.log('>> QUEUE <<', id, message, meta, '>>>>> <<<<<')
-  const { isCommand } = message;
-  const { sourceAggregate, targetAggregate } = meta;
-  _callGetAggregate(targetAggregate).handleMessage(message);
+  const { targetAggregate } = payload.meta;
+  _callGetAggregate(targetAggregate).handleMessage(payload);
 
 }});
 
-const _emitToQueue = (source, target) => (message, forceSystemTarget = false) => {
-  _messageQueue.pushMessage(message, source, forceSystemTarget ? _callGetSystemAggregate().name : target)
+const _emitToQueue = (source, target) => (message, forcedTarget = null) => {
+  _messageQueue.pushMessage(message, source, forcedTarget || target)
 };
 
 _callCreateSystemAggregate(_emitToQueue);
@@ -60,12 +66,10 @@ const getAggregateApi = aggregate => ({
   },
 
   sendCommand: (cmdType, payload) => {
-    // aggregate.sendCommand(cmdType, payload)
     _messageQueue.pushMessage({ isCommand: true, messageType: cmdType, payload }, aggregate.name, aggregate.name)
   },
   broadcastCommand: (type, payload) => {
     _messageQueue.pushMessage({ isCommand: true, messageType: type, payload }, aggregate.name, _callGetSystemAggregate().name)
-    // return _callGetSystemAggregate().sendCommand(type, payload, fromAggregate)
   },
 
 
@@ -92,7 +96,6 @@ const getSystemAggregateApi = (sourceAggregate) => ({
   },
   exposeEvents: eventTypes => {
     sourceAggregate.exposeEvents(eventTypes, (type, payload) => {
-      // _callGetSystemAggregate().sendEvent(type, payload)
       _messageQueue.pushMessage({ isCommand: false, messageType: type, payload }, sourceAggregate.name, _callGetSystemAggregate().name)
     })
   },
