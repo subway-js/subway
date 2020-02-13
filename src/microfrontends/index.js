@@ -1,11 +1,9 @@
-import {
-  createAggregate,
-} from '../core/facade';
+import { createAggregate } from "../core/facade";
 
 import { injectMicrofrontends } from "./loader";
 
 import { CMD, EVT } from "./verbs";
-import { MF_AGGREGATE_NAME } from '../globals/internalAggregates';
+import { MF_AGGREGATE_NAME } from "../globals/internalAggregates";
 
 let mfAggregate = null;
 
@@ -37,7 +35,7 @@ export const init = mfConfig => {
 
   mfAggregate.addEventHandler(
     EVT.MF_CONNECTED,
-    ({state, payload}) => {
+    ({ state, payload }) => {
       const { id } = payload;
       const returnValue = {
         proposal: {
@@ -58,7 +56,7 @@ export const init = mfConfig => {
 
   mfAggregate.addEventHandler(
     EVT.ALL_MFS_CONNECTED,
-    ({state}) => {
+    ({ state }) => {
       let events = [];
 
       state.loaded.forEach(mf => {
@@ -67,7 +65,7 @@ export const init = mfConfig => {
 
       mfAggregate.removeCommandHandler(CMD.CONNECT_MF);
       mfAggregate.removeEventHandler(EVT.MF_CONNECTED);
-      mfAggregate.removeEventHandler(EVT.ALL_MFS_CONNECTED,);
+      mfAggregate.removeEventHandler(EVT.ALL_MFS_CONNECTED);
 
       return {
         proposal: {
@@ -88,13 +86,10 @@ export const init = mfConfig => {
 export const connect = (microFrontendId, onConnected) => {
   const HACK_EVENT = EVT.MF_ACK_SENT(microFrontendId);
 
-  mfAggregate.addEventHandler(
-    HACK_EVENT,
-    ({payload}) => {
-      onConnected(payload);
-      mfAggregate.removeEventHandler(HACK_EVENT)
-    }
-  )
+  mfAggregate.addEventHandler(HACK_EVENT, ({ payload }) => {
+    onConnected(payload);
+    mfAggregate.removeEventHandler(HACK_EVENT);
+  });
 
   mfAggregate.sendCommand(CMD.CONNECT_MF, { id: microFrontendId });
 };

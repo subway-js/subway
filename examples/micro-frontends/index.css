@@ -1,0 +1,25 @@
+.wrapper {
+  position: absolute;
+  height: 50%;
+  padding: 5px;
+  overflow: hidden;
+}
+.first,
+.second {
+  top: 0;
+  width: 50%;
+}
+.first {
+  left: 0;
+  background: grey;
+}
+.second {
+  right: 0;
+  background: #aaffaa;
+}
+.third {
+  top: 50%;
+  left: 0;
+  width: 100%;
+  background: #ffaaaa;
+}

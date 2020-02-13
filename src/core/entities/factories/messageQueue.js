@@ -3,39 +3,37 @@ export const createMessageQueue = ({ messages = [], onNext = null }) => {
   const flushQueue = () => {
     const pendingMessages = [...messageStore];
     messageStore = [];
-    pendingMessages.forEach(m => setTimeout(() => notifyNextItem(m)))
-  }
+    pendingMessages.forEach(m => setTimeout(() => notifyNextItem(m)));
+  };
   let messageStore = Array.from(messages);
   let notifyNextItem = null;
-  if(onNext) {
-    notifyNextItem = onNext
+  if (onNext) {
+    notifyNextItem = onNext;
     flushQueue();
-  };
-  const _pushMessage = (message, sourceAggregate, targetAggregate) => {
-
+  }
+  const _pushMessage = (message, sourceAggregate /*, targetAggregate*/) => {
     messageStore.push({
       id: count++, // TODO needed? generate, not from 0
       // isCommand,
       message,
       meta: {
         sourceAggregate,
-        targetAggregate,
-        received: Date.now(),
+        received: Date.now()
       }
     });
     flushQueue();
-  }
+  };
 
   return {
-    isEmpty: () => (messageStore.length <= 0),
+    isEmpty: () => messageStore.length <= 0,
     // pushCommand: (message, sourceAggregate = null) => pushMessage(true, message, sourceAggregate),
     // pushEvent: (message, sourceAggregate = null) => pushMessage(false, message, sourceAggregate),
-    pushMessage: (message, sourceAggregate, targetAggregate) => {
-      _pushMessage(message, sourceAggregate, targetAggregate)
+    pushMessage: (message, sourceAggregate) => {
+      _pushMessage(message, sourceAggregate);
     },
-    observe: (next) => {
+    observe: next => {
       notifyNextItem = next;
       flushQueue();
-    },
-  }
-}
+    }
+  };
+};

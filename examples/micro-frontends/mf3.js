@@ -1,9 +1,20 @@
-const MF_3 = "MF_3";
-
-document.addEventListener("DOMContentLoaded", function() {
-  // https://github.com/jquery/jquery/blob/ad6a94c3f1747829082b85fd53ee2efbae879707/src/core/ready.js#L80-L93
-  Subway.$helpers.installMicroFrontend(MF_3, ({ domSelector }) => {
-    // NOTE you need DOM to be ready, before you can manipulate it
-    document.querySelector(domSelector).innerHTML = domSelector;
+(function() {
+  const AGGREGATE_NAME = "MF_3";
+  let $element = null;
+  const log = line => {
+    let current = $element.innerHTML;
+    $element.innerHTML = " > " + line + "<br/>" + current;
+  };
+  Subway.$helpers.installMicroFrontend(AGGREGATE_NAME, ({ domSelector }) => {
+    $element = document.querySelector(domSelector);
+    log(AGGREGATE_NAME + " mounted on " + domSelector);
+    init();
   });
-});
+
+  const init = () => {
+    const aggregate = Subway.createAggregate(AGGREGATE_NAME);
+    aggregate.consumeEvent("ADD_TO_ACCUMULATOR_REQUESTED", (type, event) => {
+      log("Request tracked: add " + event.amount);
+    });
+  };
+})();
