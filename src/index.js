@@ -1,8 +1,6 @@
-import * as MicroFrontendManager from './microfrontends/index';
-import * as AggregateManager from './core/facade';
-import {
-  InternalAggregateNames
-} from './globals/internalAggregates';
+import * as MicroFrontendManager from "./microfrontends/index";
+import * as AggregateManager from "./core/facade";
+import { InternalAggregateNames } from "./globals/internalAggregates";
 //
 // Rule 1: each aggregate lives inside an '/aggregates/aggregateName' folder
 // Rule 2: code inside '/aggregates/xxx' should never call
@@ -12,7 +10,7 @@ import {
 
 const Subway = {
   createAggregate: (name, initialState) => {
-    if(InternalAggregateNames.includes(name)) {
+    if (InternalAggregateNames.includes(name)) {
       throw Error(`Aggregate name '${name}' is a reserved namespace`);
     }
     return AggregateManager.createAggregate(name, initialState);
@@ -25,9 +23,9 @@ const Subway = {
   //   observAggregateState: () => {},
   // },
 
-  $helpers: {
-    composeMicroFrontends: MicroFrontendManager.init,
-    installMicroFrontend: MicroFrontendManager.connect
+  $microFrontends: {
+    compose: MicroFrontendManager.init,
+    install: MicroFrontendManager.connect
   }
 };
 

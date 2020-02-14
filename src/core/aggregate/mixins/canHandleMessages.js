@@ -1,15 +1,13 @@
-import { createMessageQueue } from "../index";
-import { AGGREGATES_API_BUS } from "../../../globals/internalAggregates";
-export const canHandleMessages = (self, emitToQueue) => {
+export const canHandleMessages = (self, emitMessage) => {
   const commandHandlers = new Map();
   const eventHandlers = new Map();
+
   const addHandler = ({
     isCommand,
     handlersMap,
     messageType,
     handler,
-    onError,
-    triggeredEventsTargetAggregate
+    onError
   }) => {
     if (handlersMap.has(messageType)) {
       throw Error(
@@ -18,8 +16,7 @@ export const canHandleMessages = (self, emitToQueue) => {
     }
     handlersMap.set(messageType, {
       handler,
-      onError,
-      triggeredEventsTargetAggregate
+      onError
     });
   };
   const removeHandler = ({ isCommand, handlersMap, messageType }) => {
@@ -34,24 +31,16 @@ export const canHandleMessages = (self, emitToQueue) => {
   return {
     ...self,
     canHandleMessages: true,
-    addCommandHandler: (
-      cmdType,
-      handler,
-      onError,
-      triggeredEventsTargetAggregate = null
-    ) => {
-      console.log(`> ${self.name}.addCommandHandler for ${cmdType}`);
+    addCommandHandler: (cmdType, handler, onError) => {
       addHandler({
         isCommand: true,
         handlersMap: commandHandlers,
         messageType: cmdType,
         handler,
-        onError,
-        triggeredEventsTargetAggregate
+        onError
       });
     },
     removeCommandHandler: (cmdType, handler, onError) => {
-      console.log(`> ${self.name}.removeCommandHandler for ${cmdType}`);
       removeHandler({
         isCommand: true,
         handlersMap: commandHandlers,
@@ -59,7 +48,6 @@ export const canHandleMessages = (self, emitToQueue) => {
       });
     },
     addEventHandler: (evtType, handler, onError) => {
-      console.log(`> ${self.name}.addEventHandler for ${evtType}`);
       addHandler({
         isCommand: false,
         handlersMap: eventHandlers,
@@ -69,7 +57,6 @@ export const canHandleMessages = (self, emitToQueue) => {
       });
     },
     removeEventHandler: evtType => {
-      console.log(`> ${self.name}.removeEventHandler for ${evtType}`);
       removeHandler({
         isCommand: false,
         handlersMap: eventHandlers,
@@ -81,16 +68,10 @@ export const canHandleMessages = (self, emitToQueue) => {
       const { isCommand, messageType, payload } = message;
       const handlersMap = isCommand ? commandHandlers : eventHandlers;
       if (handlersMap.has(messageType)) {
-        const {
-          handler,
-          onError = null,
-          triggeredEventsTargetAggregate = null
-        } = handlersMap.get(messageType);
+        const { handler, onError = null } = handlersMap.get(messageType);
         const currentState = self.hasObservableState
           ? self.getCurrentState()
           : null;
-
-        console.log("TODO: get target aggregate state???");
 
         const { proposal = null, events = null } =
           (await handler({ state: currentState, payload })) || {};
@@ -102,7 +83,7 @@ export const canHandleMessages = (self, emitToQueue) => {
 
         if (events) {
           events.forEach(e => {
-            emitToQueue({
+            emitMessage({
               isCommand: false,
               isExposed:
                 self.canExposeEvents &&

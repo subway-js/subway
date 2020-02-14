@@ -1,13 +1,14 @@
 (function() {
-  const AGGREGATE_NAME = "MF_2";
+  const MF_ID = "MF_2";
+  const AGGREGATE_NAME = "ACCUMULATOR";
   let $element = null;
   const log = line => {
     let current = $element.innerHTML;
     $element.innerHTML = " > " + line + "<br/>" + current;
   };
-  Subway.$helpers.installMicroFrontend(AGGREGATE_NAME, ({ domSelector }) => {
+  Subway.$microFrontends.install(MF_ID, ({ domSelector }) => {
     $element = document.querySelector(domSelector);
-    log(AGGREGATE_NAME + " mounted on " + domSelector);
+    log(MF_ID + " mounted on " + domSelector);
     init();
   });
 
@@ -18,15 +19,9 @@
       log("current value: " + sum);
     });
 
-    // setTimeout(
-    // () =>
+    aggregate.exposeEvents(["ADD_TO_ACCUMULATOR_REQUESTED"]);
 
-    //   1000
-    // );
-
-    aggregate.bus.exposeEvents(["ADD_TO_ACCUMULATOR_REQUESTED"]);
-
-    aggregate.bus.exposeCommandHandler(
+    aggregate.exposeCommandHandler(
       "ADD_TO_ACCUMULATOR",
       ({ state, payload }) => {
         return {

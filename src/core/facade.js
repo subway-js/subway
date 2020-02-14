@@ -1,81 +1,57 @@
-import { createMessageQueue } from "./entities/factories/messageQueue";
+import { createCluster } from "./cluster/factory";
+import { createMessageQueue } from "./messageQueue/factory";
+import { createPublicMessagesProxy } from "./publicMessagesProxy/factory";
 
-import {
-  createAggregate as _callCreateAggregate,
-  createSystemAggregate as _callCreateSystemAggregate,
-  getAggregate as _callGetAggregate,
-  getSystemAggregate as _callGetSystemAggregate,
-  aggregateExists as _callAggregateExists
-} from "./store";
+const cluster = createCluster();
+const publicProxy = createPublicMessagesProxy();
+const messageQueue = createMessageQueue();
 
-const _messageQueue = createMessageQueue({
-  onNext: callPayload => {
-    console.table({
-      id: callPayload.id,
-      isCommand: callPayload.message.isCommand,
-      isExposed: callPayload.message.isExposed,
-      isBroadcasted: callPayload.message.isBroadcasted,
-      type: callPayload.message.messageType,
-      payload: callPayload.message.payload,
-      source: callPayload.meta.sourceAggregate,
-      target: callPayload.meta.targetAggregate
-    });
-
-    const {
-      messageType,
-      payload,
-      isExposed,
-      isBroadcasted,
-      isCommand
-    } = callPayload.message;
-    const { sourceAggregate } = callPayload.meta;
-
-    _callGetAggregate(
-      isCommand && isBroadcasted
-        ? exposedCommandHandlers.get(messageType)
-        : sourceAggregate
-    ).handleMessage(callPayload);
-
-    if (isExposed) {
-      if (exposedEventsMap.has(messageType)) {
-        Array.from(exposedEventsMap.get(messageType)).forEach(h =>
-          h(messageType, payload)
-        );
-      }
-    }
-  }
-});
-
-const _emitToQueue = (source /*, target*/) => (
-  message /*, forcedTarget = null*/
-) => {
-  _messageQueue.pushMessage(message, source); //, forcedTarget || target);
+const sendToQueue = sourceAggregateName => message => {
+  messageQueue.pushMessage(message, sourceAggregateName); //, forcedTarget || target);
 };
 
-_callCreateSystemAggregate(_emitToQueue);
+const processQueueMessage = callPayload => {
+  const {
+    messageType,
+    payload,
+    isExposed,
+    isBroadcasted,
+    isCommand
+  } = callPayload.message;
+  const { sourceAggregateName } = callPayload.meta;
+
+  const targetAggregate =
+    isCommand && isBroadcasted
+      ? publicProxy.isCommandHandled(messageType)
+        ? publicProxy.getCommandOwnerName(messageType)
+        : null
+      : sourceAggregateName;
+
+  targetAggregate &&
+    cluster.getAggregate(targetAggregate).handleMessage(callPayload);
+
+  if (publicProxy.hasExposedEventsSubscribers(messageType)) {
+    publicProxy.notifyExposedEventSubscribers(messageType, payload);
+  }
+};
+
+messageQueue.setMessageCallback(processQueueMessage);
 
 export const createAggregate = (name, initialState) => {
-  const aggregate = _callCreateAggregate(
+  const aggregate = cluster.createAggregate(
     name,
     initialState,
-    _emitToQueue(name) //, name)
+    sendToQueue(name)
   );
   return buildAggregateApi(aggregate);
 };
 
 export const selectAggregate = name => {
-  const aggregate = _callGetAggregate(name);
+  const aggregate = cluster.getAggregate(name);
   return buildAggregateApi(aggregate);
 };
 
 const buildAggregateApi = aggregate => ({
-  ...getAggregateApi(aggregate),
-  bus: {
-    ...getSystemAggregateApi(aggregate)
-  }
-});
-
-const getAggregateApi = aggregate => ({
   addEventHandler: (evtType, handler, onError) => {
     aggregate.addEventHandler(evtType, handler, onError);
   },
@@ -91,64 +67,45 @@ const getAggregateApi = aggregate => ({
   },
 
   sendCommand: (cmdType, payload) => {
-    _messageQueue.pushMessage(
+    messageQueue.pushMessage(
       { isCommand: true, messageType: cmdType, payload },
       aggregate.name,
       aggregate.name
     );
   },
   broadcastCommand: (type, payload) => {
-    _messageQueue.pushMessage(
+    messageQueue.pushMessage(
       { isCommand: true, isBroadcasted: true, messageType: type, payload },
       aggregate.name
     );
   },
-
-  consumeEvent: (evtType, handler, onError) => {
-    // return _callGetSystemAggregate().addEventHandler(evtType, handler, onError);
-    if (exposedEventsMap.has(evtType)) {
-      exposedEventsMap.get(evtType).add(handler);
-    } else {
-      exposedEventsMap.set(evtType, new Set([handler]));
-    }
-    return () => {
-      // TODO
-    };
-  },
-
-  stopConsumingEvent: evtType => {
-    return _callGetSystemAggregate().removeEventHandler(evtType);
-  },
-
   observeState: onNextState => {
     return aggregate.observeState(onNextState);
-  }
-});
-
-const exposedEventsMap = new Map();
-const exposedCommandHandlers = new Map();
-
-const getSystemAggregateApi = sourceAggregate => ({
+  },
+  consumeEvent: (evtType, handler, onError) => {
+    return publicProxy.subscribeToExposedEvent(evtType, handler);
+  },
   exposeCommandHandler: (cmdType, handler, onError) => {
-    sourceAggregate.addCommandHandler(cmdType, handler, onError);
-    if (exposedCommandHandlers.has(cmdType)) {
-      throw Error(
-        "Command handler for " + cmdType + " has already been published"
-      );
-    } else {
-      exposedCommandHandlers.set(cmdType, sourceAggregate.name);
-    }
+    aggregate.addCommandHandler(cmdType, handler, onError);
+    const unsubscribe = publicProxy.exposeCommandHandler(
+      cmdType,
+      aggregate.name
+    );
+
     return () => {
-      // TODO
-      // clean exposedCommandHandlers
-      sourceAggregate.removeCommandHandler(cmdType);
+      unsubscribe();
+      aggregate.removeCommandHandler(cmdType);
     };
   },
-  removeCommandHandler: cmdType => {
-    _callGetSystemAggregate().removeCommandHandler(cmdType);
-  },
   exposeEvents: eventTypes => {
-    sourceAggregate.exposeEvents(eventTypes);
+    // TODO stop exposing events
+    aggregate.exposeEvents(eventTypes);
+  },
+
+  $experimental: {
+    importComponent: id => publicProxy.getComponentById(id),
+    exportComponent: (id, factoryFunction) => {
+      publicProxy.exportComponent(id, factoryFunction, aggregate.name);
+    }
   }
-  // TODO exposeComponent
 });
