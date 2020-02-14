@@ -1,42 +1,53 @@
 
 # SubwayJS
-Subway is a personal project from [danilorossi](https://github.com/danilorossi) that explores the idea of bringing **event sourcing & CQRS** to the browser for micro-frontends development.
+Subway is a personal project from [danilorossi](https://github.com/danilorossi) that explores the idea of bringing some of the patterns and benefits of **Domain Driven Design, Event Sourcing and CQRS** to the browsers, for frontend and micro-frontends development.
 
-## Disclaimer
+That's a big statement, so let's first of all clarify how those patterns inspire Subway.
 
-**SubwayJS is in a very early stage, and design/code/documentation is work in progress**
+From **Domain Driven Design**:
+- Subway promotes a software design that identifies clear sub-systems and boundaries, which not only leads to a more self-explaining codebase structure, it also helps shaping your development team structure, and prepares you for an easy transition to a micro-frontends model
 
-## Background
-
-While working as FE Architect a few years ago, I had the luck to face a very challenging problem that led me and my team to design and implementing what is now called a 'micro-frontends' architecture - it was around 2016.
-
-At the same time, I have been lucky enough to work very closely to some great backend engineers implementing a distributed and scalable backend system with a DDD & CQRS approach.
-
-After that, as an engineering manager, I also understood how those technical approaches are not only an answer to technical problems: they are also an answer to 'people' and management problems.
-
-With this project, I want to explore how the approach that I found so valuable and interesting in the backend can be applied on the frontend as a way to:
-- describe a system in a way that is easily understandable, manageable and expandable
-- a micro-frameworks-friendly framework for frontend systems
+From **Event Sourcing and CQRS**:
+- Subway provides a *commands & events* way to describe a system behaviour that's easy to understand and to talk about. It also promotes the decoupling of each sub-system which makes it easy to switch implementations and add new features
 
 ## Status
 
-This is a work in progress, that is evolving based on the projects I am working on in the [SubwayJS](https://github.com/subway-js) github account.
+**SubwayJS is in its early stage**
 
-- I started implementing [this interesting tutorial](https://cqrs.nu/tutorial/cs/01-design) as a simple HTML application (`/example/event-sourcing/`) to investigate how this library could work, the APIs and the overall idea and design. I also explored the microfrontends approach in the `/example/micro-frontend/` page.
+I am working on a few projects (that you can find in the SubwayJS github account, and described below as well) as a way to investigate the final API, architecture, and features of SubwayJS: please be aware that the codebase structure, API and documentation are in a very dynamic state at the moment.
 
-- I implemented the same tutorial as a [react web application](https://github.com/subway-js/subway-react-restaurant).
+## Projects
 
-- I started implementing an actual use case, an [ecommerce react website](https://github.com/subway-js/subway-react-ecommerce), to keep investigating the shape of this library, and also to start thinking about a possible subway-react utility library.
+Here's some details about the project I am working on at the moment to help me shaping SubwayJS:
 
-- At the moment I am working on that, and I plan to implement the same ecommerce application with microfrontends.
+- there is a [nice tutorial](https://cqrs.nu/tutorial/cs/01-design) that guides the reader toward the design of a system in a 'CQRS' way: `/example/event-sourcing/` provide a very basic implementation
 
-This project touches many topics, and I am going to use this example-based approach to find a good answer for:
-- *state management*: mutable or immutable? If mutable, how can SAM architecture inspire the framework?
-- *events store*: do we need one? How do we manage offline and page reload? How do we synch with the backend?
-- is this framework *performant*, or is there any bottleneck? How to integrate *WebWorkers*?
-- what's the best API and how can I translate DDD terminology to the frontend context?
+- `/example/micro-frontend/` explores the micro-frontends support
 
-Plus many others that I will surely face during this investigation.
+- I implemented the [tutorial mentioned before](https://cqrs.nu/tutorial/cs/01-design) as a [react web application](https://github.com/subway-js/subway-react-restaurant), to start understanding how SubwayJS development looks like with ReactJS.
+
+- I started implementing an actual use case, an [ecommerce react website](https://github.com/subway-js/subway-react-ecommerce), to understand the value of the library in a real use-case (not tables, but sessions and API calls), and also to start thinking about a possible subway-react utility library
+
+## Next steps
+
+- Finalise the API design
+- Adapt the [ecommerce react website](https://github.com/subway-js/subway-react-ecommerce] to use the latest API version
+- Create a react library to support SubwayJS apps development with ReactJS
+- Create a micro-frontends project based on the ecommerce one
+
+And along the road:
+- Add testing
+- CI/CD pipeline
+- API documentation (maybe integrating flow-type)
+and everything else a library should have (who said 'a logo'?)
+
+## --- the following is not up to date ---
+
+## Concepts
+
+- Aggregates
+- etc.
+
 
 ## Installation
 
