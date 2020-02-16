@@ -38,12 +38,27 @@ describe("Aggregate / Mixins / canExposeEvents", () => {
     expect(preFilledInstance.getExposedEvents().length).toBe(3);
   });
 
-  test("mixin allows exposing single events or array of events", () => {
-    expect(true).toBe(false);
+  test("mixin allows exposing one event or an array of events", () => {
+    instance.exposeEvents(["1", "2"]);
+    expect(instance.hasEventsToExpose()).toBe(true);
+    expect(instance.getExposedEvents().length).toBe(2);
+    instance.exposeEvent("4");
+    expect(instance.getExposedEvents().length).toBe(3);
+    instance.exposeEvent(["5"]);
+    expect(instance.getExposedEvents().length).toBe(4);
+    instance.exposeEvent("6");
+    expect(instance.getExposedEvents().length).toBe(5);
   });
 
   test("mixin allows event to be removed from tracking list", () => {
-    expect(true).toBe(false);
+    instance.exposeEvents(["1", "2"]);
+    instance.exposeEvent("3");
+    expect(instance.getExposedEvents().length).toBe(3);
+    instance.stopExposingEvents(["1", "3"]);
+    expect(instance.getExposedEvents().length).toBe(1);
+    expect(instance.getExposedEvents()[0]).toEqual("2");
+    instance.stopExposingEvents(["2"]);
+    expect(instance.hasEventsToExpose()).toBe(false);
   });
 
   test("mixin can track events with the same name from different aggregates", () => {
