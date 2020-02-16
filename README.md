@@ -8,17 +8,17 @@ From **Domain Driven Design**:
 - Subway promotes a software design that identifies clear sub-systems and boundaries, which not only leads to a more self-explaining codebase structure, it also helps shaping your development team structure, and prepares you for an easy transition to a micro-frontends model
 
 From **Event Sourcing and CQRS**:
-- Subway provides a *commands & events* way to describe a system behaviour that's easy to understand and to talk about. It also promotes the decoupling of each sub-system which makes it easy to switch implementations and add new features
+- Subway provides a *commands & events* way to describe a system behaviour that's easy to understand and to talk about. It also promotes the decoupling of each sub-system, which makes it easy to switch implementations and add new features
 
 ## Status
 
-**SubwayJS is in its early stage**
+**SubwayJS is in early stage**
 
-I am working on a few projects (that you can find in the SubwayJS github account, and described below as well) as a way to investigate the final API, architecture, and features of SubwayJS: please be aware that the codebase structure, API and documentation are in a very dynamic state at the moment.
+I am working on some projects (check the SubwayJS GitHub account or keep reading) as a way to shape the final API, architecture, and features of SubwayJS: please be aware that **the codebase structure, API and documentation are in a very dynamic state at the moment**. The **projects listed below shouldn't be consider a final example of how to use this library as well**: they are changing frequently and may not be using the latest SubwayJS version.
 
 ## Projects
 
-Here's some details about the project I am working on at the moment to help me shaping SubwayJS:
+Here's some details about the projects that are helping me shaping SubwayJS:
 
 - there is a [nice tutorial](https://cqrs.nu/tutorial/cs/01-design) that guides the reader toward the design of a system in a 'CQRS' way: `/example/event-sourcing/` provide a very basic implementation
 
@@ -26,7 +26,48 @@ Here's some details about the project I am working on at the moment to help me s
 
 - I implemented the [tutorial mentioned before](https://cqrs.nu/tutorial/cs/01-design) as a [react web application](https://github.com/subway-js/subway-react-restaurant), to start understanding how SubwayJS development looks like with ReactJS.
 
-- I started implementing an actual use case, an [ecommerce react website](https://github.com/subway-js/subway-react-ecommerce), to understand the value of the library in a real use-case (not tables, but sessions and API calls), and also to start thinking about a possible subway-react utility library
+- I started implementing an actual use case, an [ecommerce react website](https://github.com/subway-js/subway-react-ecommerce), to understand the value of the library in a real use-case (session, API calls, communication between sub-systems), and also to start thinking about a possible subway-react utility library
+
+## Understanding SubwayJS model
+
+*TODO: use [ecommerce react website](https://github.com/subway-js/subway-react-ecommerce) as an example - describe in its README the app design approach*
+
+*TODO: provide context and differences e.g. MVC, SAM, React, Redux, Sagas etc.*
+
+SubwayJS is about structuring your application, codebase, logic and teams: it doesn't make any assumptions on the UI library you are going to use.
+
+*TODO: clarify app design approach - identify domains/aggregates of the system*
+
+The current state of SubwayJS matches the overall idea of having:
+
+- **aggregates** (or sub-systems, or domains), the main SubwayJS entities, with their own in-memory **store**
+
+- a message broker, where **messages** are sent and dispatched - messages can be one of the following two types:
+
+  - **commands** are proactively sent (e.g. in response to a UI action)
+
+  - **events**, which are triggered by commands or other events, and represent facts, things that happened in the system,  and that can change an aggregate's state
+
+- aggregates react to messages through commands or events **handlers**
+
+- the ability to **observe** an aggregate's state, in order to be notified when a change happens - and update the UI accordingly
+
+All of this happens in each aggregate's scope, with commands and events that are very specific, and the specific aggregate's state being updated. But, in order to have a working application, we need a way for aggregates to communicate between each other - they do it by:
+
+- **exposing commands handler**, as a way to define a public API for other aggregates (e.g. aggregate Session could expose a command handler for *LOGOUT* or *SHOW_LOGIN_MODAL* commands, and other aggregates could *broadcast* such messages to trigger the logic)
+- **exposing events**, as a way to communicate to other aggregates who can subscribe to such events e.g. a ShoppingCart UI container in a Payment aggregate could subscribe to the **USER_LOGGED_IN** event to know when to show a *proceed to checkout* button)
+
+Features under investigation:
+
+- the ability to **spy** on any message going through the message queue bus
+
+- the ability to **expose components** to other aggregates e.g. the Payment aggregate could have a ShoppingCart view, and could expose a shopping cart dropdown button to be used in the navigation bar - to show the actual list of items and a checkout button)
+
+## Micro-frontends support
+
+Having highly decoupled aggregates (each of them with its own logic, entities, state and UI), makes it easy to transition to a micro-frontends approach.
+
+SubwayJS provides a **micro-frontends orchestration utility** (implemented with the same SubwayJS library through aggregates, commands and events) to make it easy to split each aggregate (or domain, or sub-system) into its own project/codebase with its own release pipeline.
 
 ## Next steps
 
@@ -38,15 +79,7 @@ Here's some details about the project I am working on at the moment to help me s
 And along the road:
 - Add testing
 - CI/CD pipeline
-- API documentation (maybe integrating flow-type)
-and everything else a library should have (who said 'a logo'?)
-
-## --- the following is not up to date ---
-
-## Concepts
-
-- Aggregates
-- etc.
+- API documentation
 
 
 ## Installation
@@ -59,23 +92,7 @@ Import SubwayJS in your HTML file using *unpkg*:
 
 The library will create a global variable `Subway` in the `window` global object.
 
-## Current model and API
-
-The model and  API can (and will) change based on the on-going investigation: the following description is the current state of SubwayJS, which matches the overall idea of having:
-
-- **aggregates**, the basic domain entity, with their own in memory **store**
-
-- **commands**, which are the trigger of events in the aggregates scope
-
-- **events**, which are things that happened in the system and that can change an aggregate's state
-
-- the ability to **observe** an aggregate's state, in order to be notified when a change happens
-
-- the ability to **spy** on any aggregate message bus, to listen to events and react accordingly
-
-- a way to **trigger events** as a result of other events from a different aggregate
-
-- a **micro-frontends** orchestration utility, implemented with the same SubwayJS library through aggregates, commands and events
+## API
 
 ### 1. Aggregates
 
@@ -200,84 +217,42 @@ Subway
 
 Every time an aggregate state is updated, the `next` function will be invoked.
 
-### 5. Spy
-
-We can 'spy' on aggregates to see the ongoing commands and events activity:
+### 5. Exposing commands
 
 ```js
 Subway
   .selectAggregate("counter")
-  .spy('*', {
-    next: payload => {
-      // ...
+  .exposeCommandHandler(
+    "RESET_COUNTER",
+    ({ state, payload }) => {
+      return {
+        events: [{ id: "COUNTER_RESET_REQUEST_RECEIVED" }]
+      };
     }
+  );
+```
+
+```js
+anotherAggregate
+  .broadcastCommand("RESET_COUNTER");
+```
+
+### 6. Exposing Events
+
+
+```js
+Subway
+  .selectAggregate("counter")
+  .exposeEvents(["NEW_COUNTER_VALUE"]);
+```
+
+
+```js
+anotherAggregate
+  .consumeEvent("NEW_COUNTER_VALUE", ({ counterValue }) => {
+    // ...
   });
 ```
-
-You can either spy all commands and events (e.g. `spy('*', ...)`), or specify one (e.g. `spy('COUNTER_READY', ...)`)
-
-
-### 6. Automatic trigger on event
-
-If we want to do something as a result of an event in another aggregate, the steps are:
-- in aggregate B, spy aggregate A for the event E
-- once the spy callback is fired, send an aggregate command like B.notify_event_E_from_A
-- a command handler should receive this, and trigger an event like B.event_E_from_A_fired
-
-We can make this shorter by using the `triggerOn` function:
-
-```js
-
-Subway
-  .selectAggregate("AggregateB")
-  .triggerAfter("Event1 ", {
-      targetAggregate: "AggregateA",
-      triggeredEvent: 'Event2',
-      withPayload: (event1Payload) => event2Payload
-    });
-```
-
-The parameter `withPayload` is optional: if not specified, the same payload will be used for the triggered event.
-
-The parameter `targetAggregate` is optional: if not specified, the source aggregate will be used as target aggregate.
-
-This can be useful to create chain of events inside the same aggregate, when no business logic is required in between, as a short alternative to eventHandlers:
-
-```js
-
-Subway
-  .selectAggregate("MyAggregate")
-  .triggerAfter("Event ", {
-      triggeredEvent: 'AfterEvent',
-    });
-```
-
-It is also possible to listen to a specific event no matter the source aggregate, so that we can create an aggregate that can handle a specific message - sort of an API, e.g.:
-
-```js
-
-Subway
-  .selectAggregate("*")
-  .triggerAfter("LoginModalRequestSubmitted ", {
-    targetAggregate: 'AggregateA'
-      triggeredEvent: 'LoginModalVisibilityRequested',
-    });
-```
-
-In this case, it is mandatory to specify the target aggregate.
-
-### 7. Respond to external commands
-
-As an alternative to `selectAggregate("*").triggerAfter(...)`, we can use the `respondToCommand` helper function, as a preferred way to declare
-the **public** interface of our aggregate:
-
- ```js
- Subway
-   .respondToCommand("SHOW_LOGIN_MODAL ", {
-      targetAggregate: 'SessionAggregate'
-       triggeredEvent: 'LoginModalRequested',
-     });
- ```
 
 ### Micro-frontends
 
