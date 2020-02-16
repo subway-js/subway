@@ -14,6 +14,7 @@ export const hasObservableState = (self, initialState = {}) => {
     },
     updateState: nextState => {
       state = nextState; //{ ...nextState };
+      console.log(`> nextState for ${self.name}:`, callPayload);
       subscribers.forEach(onNextState => onNextState(nextState));
     },
     getCurrentState: () => state //({...state})

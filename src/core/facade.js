@@ -11,6 +11,7 @@ const sendToQueue = sourceAggregateName => message => {
 };
 
 const processQueueMessage = callPayload => {
+  console.log("> nextMessage:", callPayload);
   const {
     messageType,
     payload,
@@ -67,6 +68,7 @@ const buildAggregateApi = aggregate => ({
   },
 
   sendCommand: (cmdType, payload) => {
+    // TODO reject command on error
     messageQueue.pushMessage(
       { isCommand: true, messageType: cmdType, payload },
       aggregate.name,

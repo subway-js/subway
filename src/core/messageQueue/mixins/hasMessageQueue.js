@@ -18,6 +18,7 @@ export const hasMessageQueue = (self, initialMessages = []) => {
     },
     isQueueEmpty: () => messageStore.length <= 0,
     pushMessage: (message, sourceAggregateName) => {
+      // TODO factory for messages
       messageStore.push({
         id: count++, // TODO needed? generate, not from 0
         // isCommand,
