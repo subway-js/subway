@@ -32,6 +32,7 @@ const processQueueMessage = callPayload => {
     cluster.getAggregate(targetAggregate).handleMessage(callPayload);
 
   if (publicProxy.hasExposedEventsSubscribers(messageType)) {
+    // publicProxy.updateLastEventPayload({ type: messageType, payload })
     publicProxy.notifyExposedEventSubscribers(messageType, payload);
   }
 };
@@ -85,6 +86,8 @@ const buildAggregateApi = aggregate => ({
     return aggregate.observeState(onNextState);
   },
   consumeEvent: (evtType, handler, onError) => {
+
+    // handler(evtType, publicProxy.getExposedEventLastPayload(evtType));
     return publicProxy.subscribeToExposedEvent(evtType, handler);
   },
   exposeCommandHandler: (cmdType, handler, onError) => {
@@ -99,9 +102,26 @@ const buildAggregateApi = aggregate => ({
       aggregate.removeCommandHandler(cmdType);
     };
   },
+  exposeEvent: event => {
+    const paramType = typeof event;
+    let eventType = null;
+    let payload = null;
+    if (paramType === "string") {
+      eventType = event;
+    }
+    if (event && paramType === "object") {
+      const { type, defaultValue } = event;
+      if(defaultValue) {
+        payload = defaultValue;
+      }
+      // publicProxy.updateLastEventPayload({type, payload: defaultValue})
+      eventType = type;
+    }
+    publicProxy.notifyExposedEventSubscribers(eventType, payload || null)
+    aggregate.exposeEvent(eventType)
+  },
   exposeEvents: eventTypes => {
-    // TODO stop exposing events
-    aggregate.exposeEvents(eventTypes);
+    aggregate.exposeEvents(eventTypes)
   },
 
   $experimental: {

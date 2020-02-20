@@ -14,9 +14,14 @@
 
   const init = () => {
     const aggregate = Subway.createAggregate(AGGREGATE_NAME);
-    aggregate.consumeEvent("ADD_TO_ACCUMULATOR_REQUESTED", (type, event) => {
-      log("Request tracked: add " + event.amount);
-    });
+
+    // setTimeout(() => {
+      aggregate.consumeEvent("ADD_TO_ACCUMULATOR_REQUESTED", (type, event) => {
+          log("Request tracked: add " + (event ? event.amount : 'null'));
+
+      });
+    // }, 1000)
+
 
     setTimeout(() => {
       const importedComponent = aggregate.$experimental.importComponent(

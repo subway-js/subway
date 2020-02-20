@@ -19,7 +19,8 @@
       log("current value: " + sum);
     });
 
-    aggregate.exposeEvents(["ADD_TO_ACCUMULATOR_REQUESTED"]);
+    aggregate.exposeEvent({ type: "ADD_TO_ACCUMULATOR_REQUESTED", defaultValue: { amount: 0 } });
+    // aggregate.exposeEvent("ADD_TO_ACCUMULATOR_REQUESTED");
 
     aggregate.exposeCommandHandler(
       "ADD_TO_ACCUMULATOR",
