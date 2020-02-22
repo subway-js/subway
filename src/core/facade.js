@@ -32,7 +32,6 @@ const processQueueMessage = callPayload => {
     cluster.getAggregate(targetAggregate).handleMessage(callPayload);
 
   if (publicProxy.hasExposedEventsSubscribers(messageType)) {
-    // publicProxy.updateLastEventPayload({ type: messageType, payload })
     publicProxy.notifyExposedEventSubscribers(messageType, payload);
   }
 };
@@ -106,32 +105,5 @@ const buildAggregateApi = aggregate => ({
     publishComponent: (id, factoryFunction) => {
       publicProxy.exportComponent(id, factoryFunction, aggregate.name);
     }
-    // exposeEvent: event => {
-    //   const paramType = typeof event;
-    //   let eventType = null;
-    //   let payload = null;
-    //   if (paramType === "string") {
-    //     eventType = event;
-    //   }
-    //   if (event && paramType === "object") {
-    //     const { type, defaultValue } = event;
-    //     if(defaultValue) {
-    //       payload = defaultValue;
-    //     }
-    //     // publicProxy.updateLastEventPayload({type, payload: defaultValue})
-    //     eventType = type;
-    //   }
-    //   publicProxy.notifyExposedEventSubscribers(eventType, payload || null)
-    //   aggregate.exposeEvent(eventType)
-    // },
-    // exposeEvents: eventTypes => {
-    //   aggregate.exposeEvents(eventTypes)
-    // },
   }),
-  // $experimental: {
-  //   importComponent: id => publicProxy.getComponentById(id),
-  //   exportComponent: (id, factoryFunction) => {
-  //     publicProxy.exportComponent(id, factoryFunction, aggregate.name);
-  //   }
-  // }
 });

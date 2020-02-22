@@ -50,7 +50,7 @@ describe("Aggregate / Mixins / canExposeEvents", () => {
     expect(instance.getExposedEvents().length).toBe(5);
   });
 
-  test("mixin allows event to be removed from tracking list", () => {
+  test("mixin allows events to be removed from tracking list", () => {
     instance.exposeEvents(["1", "2"]);
     instance.exposeEvent("3");
     expect(instance.getExposedEvents().length).toBe(3);
