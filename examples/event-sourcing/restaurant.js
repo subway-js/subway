@@ -37,52 +37,43 @@
     }, 0);
   });
 
-  tabAggregate.reactToCommand(CMD.OPEN_TAB, ({ state, payload }) => {
-    return {
-      events: [{ id: EVT.TAB_OPENED, payload: { id: 0, table: 1, waiter: 1 } }]
-    };
+  tabAggregate.reactToCommand(CMD.OPEN_TAB, ({ state, payload }, { triggerEvents }) => {
+    triggerEvents([{ id: EVT.TAB_OPENED, payload: { id: 0, table: 1, waiter: 1 } }])
+
   });
 
-  tabAggregate.reactToEvent(EVT.TAB_OPENED, ({ state, payload }) => {
-    return {
-      proposal: { open: true }
-    };
+  tabAggregate.reactToEvent(EVT.TAB_OPENED, ({ state, payload}, { updateState }) => {
+    updateState({ open: true })
   });
 
-  tabAggregate.reactToCommand(CMD.PLACE_ORDER, ({ state, payload }) => {
+  tabAggregate.reactToCommand(CMD.PLACE_ORDER, ({ state, payload }, { triggerEvents }) => {
     if (!state.open) throw Error(EX.TAB_NOT_OPEN);
     const drinkSample = payload.orderedItems.filter(i => i.isDrink);
     const foodSample = payload.orderedItems.filter(i => !i.isDrink);
 
-    return {
-      events: [
-        { id: EVT.DRINKS_ORDERED, payload: drinkSample },
-        { id: EVT.FOOD_ORDERED, payload: foodSample }
-      ]
-    };
+    triggerEvents([
+      { id: EVT.DRINKS_ORDERED, payload: drinkSample },
+      { id: EVT.FOOD_ORDERED, payload: foodSample }
+    ])
   });
 
-  tabAggregate.reactToEvent(EVT.DRINKS_ORDERED, ({ state, payload }) => {
-    return {
-      proposal: {
-        ...state,
-        outstandingDrinks: payload
-      }
-    };
+  tabAggregate.reactToEvent(EVT.DRINKS_ORDERED, ({ state, payload }, { updateState }) => {
+    updateState({
+      ...state,
+      outstandingDrinks: payload
+    })
   });
 
-  tabAggregate.reactToEvent(EVT.FOOD_ORDERED, ({ state, payload }) => {
-    return {
-      proposal: {
+  tabAggregate.reactToEvent(EVT.FOOD_ORDERED, ({ state, payload }, { updateState }) => {
+    updateState({
         ...state,
         outstandingFood: payload
-      }
-    };
+      })
   });
 
   tabAggregate.reactToCommand(
     CMD.MARK_DRINK_SERVED,
-    ({ state, payload }) => {
+    ({ state, payload }, { triggerEvents }) => {
       if (!state.open) throw Error(EX.TAB_NOT_OPEN);
 
       if (state.outstandingDrinks) {
@@ -92,16 +83,14 @@
         throw Error(EX.DRINKS_NOT_OUTSTANDING);
       }
 
-      return {
-        events: [{ id: EVT.DRINK_SERVED, payload }]
-      };
+      triggerEvents([{ id: EVT.DRINK_SERVED, payload }])
     },
     error => {
       console.log("# Error sending command:", error);
     }
   );
 
-  tabAggregate.reactToEvent(EVT.DRINK_SERVED, ({ state, payload }) => {
+  tabAggregate.reactToEvent(EVT.DRINK_SERVED, ({ state, payload }, { updateState }) => {
     const nextOutstandingDrinks = state.outstandingDrinks.filter(
       drink => !payload.menuNumbers.includes(drink.menuNumber)
     );
@@ -109,16 +98,14 @@
       payload.menuNumbers.includes(drink.menuNumber)
     );
     const servedItemsValue = temp.reduce((acc, curr) => acc + curr.price, 0);
-    return {
-      proposal: {
-        ...state,
-        servedItemsValue: (state.servedItemsValue || 0) + servedItemsValue,
-        outstandingDrinks: nextOutstandingDrinks
-      }
-    };
+    updateState({
+      ...state,
+      servedItemsValue: (state.servedItemsValue || 0) + servedItemsValue,
+      outstandingDrinks: nextOutstandingDrinks
+    })
   });
 
-  tabAggregate.reactToCommand(CMD.MARK_FOOD_SERVED, ({ state, payload }) => {
+  tabAggregate.reactToCommand(CMD.MARK_FOOD_SERVED, ({ state, payload }, { triggerEvents }) => {
     if (!state.open) throw Error(EX.TAB_NOT_OPEN);
 
     if (state.outstandingFood) {
@@ -128,12 +115,10 @@
       throw Error(EX.FOOD_NOT_OUTSTANDING);
     }
 
-    return {
-      events: [{ id: EVT.FOOD_SERVED, payload }]
-    };
+    triggerEvents([{ id: EVT.FOOD_SERVED, payload }])
   });
 
-  tabAggregate.reactToEvent(EVT.FOOD_SERVED, ({ state, payload }) => {
+  tabAggregate.reactToEvent(EVT.FOOD_SERVED, ({ state, payload }, { updateState }) => {
     const nextOutstandingFood = state.outstandingFood.filter(
       food => !payload.menuNumbers.includes(food.menuNumber)
     );
@@ -142,13 +127,11 @@
     );
     const servedItemsValue = temp.reduce((acc, curr) => acc + curr.price, 0);
 
-    return {
-      proposal: {
-        ...state,
-        servedItemsValue: (state.servedItemsValue || 0) + servedItemsValue,
-        outstandingFood: nextOutstandingFood
-      }
-    };
+    updateState({
+      ...state,
+      servedItemsValue: (state.servedItemsValue || 0) + servedItemsValue,
+      outstandingFood: nextOutstandingFood
+    })
   });
 
   tabAggregate.reactToEvent(EVT.TAB_CLOSED, ({ state, payload }) => {

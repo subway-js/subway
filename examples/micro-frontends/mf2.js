@@ -22,22 +22,18 @@
     aggregate
       .publicChannel()
       .reactToCommand("ADD_TO_ACCUMULATOR",
-        ({ state, payload, broadcastEvent }) => {
+        ({ state, payload }, { broadcastEvent, triggerEvents }) => {
           broadcastEvent('SOMETHING_INTERESTING_HAPPENED', payload)
-          return {
-            events: [{ id: "ADD_TO_ACCUMULATOR_REQUESTED", payload }]
-          };
+          triggerEvents([{ id: "ADD_TO_ACCUMULATOR_REQUESTED", payload }])
         }
     );
 
     aggregate.reactToEvent(
       "ADD_TO_ACCUMULATOR_REQUESTED",
-      ({ state, payload }) => {
-        return {
-          proposal: {
-            sum: state.sum + payload.amount
-          }
-        };
+      ({ state, payload }, { updateState }) => {
+        updateState({
+          sum: state.sum + payload.amount
+        })
       }
     );
 

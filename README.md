@@ -153,17 +153,15 @@ Subway
   .selectAggregate("counter")
   .reactToCommand(
     "INIT_COUNTER",
-    ({ state, payload }) => {
+    ({ state, payload }, { triggerEvents }) => {
       const { incrementValue } = payload;
-      return {
-        events: [{
-          id: 'COUNTER_READY',
-          payload: {
-            currentValue: 0,
-            incrementValue
-          }
-        }]
-      };
+      triggerEvents([{
+        id: 'COUNTER_READY',
+        payload: {
+          currentValue: 0,
+          incrementValue
+        }
+      }]);
     }
   );
 ```
@@ -180,19 +178,14 @@ Subway
   .selectAggregate("counter")
   .reactToEvent(
     "COUNTER_READY",
-    ({ state, payload }) => {
+    ({ state, payload }, { updateState, triggerEvents }) => {
       const { currentValue, incrementValue } = payload;
-      const stateProposal = {
+      updateState({
         ...aggregateState,
         status: 'ready',
         currentValue,
         incrementValue
-      };
-
-      return {
-        proposal,
-        events: []
-      };
+      });
     }
   );
 ```
@@ -225,10 +218,8 @@ Subway
   .publicChannel()
   .reactToCommand(
     "RESET_COUNTER",
-    ({ state, payload }) => {
-      return {
-        events: [{ id: "COUNTER_RESET_REQUEST_RECEIVED" }]
-      };
+    ({ state, payload }, { triggerEvents }) => {
+      triggerEvents([{ id: "COUNTER_RESET_REQUEST_RECEIVED" }])
     }
   );
 ```
@@ -247,7 +238,7 @@ Subway
   .selectAggregate("counter")
   .reactToEvent(
     "COUNTER_READY",
-    ({ state, payload, broadcastEvent }) => {
+    ({ state, payload }, { broadcastEvent }) => {
       const { currentValue, incrementValue } = payload;
 
       broadcastEvent('SOMETHING_INTERESTING_HAPPENED', payload);

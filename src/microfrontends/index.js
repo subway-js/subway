@@ -16,7 +16,7 @@ export const init = mfConfig => {
 
   mfAggregate.reactToCommand(
     CMD.CONNECT_MF,
-    ({ state, payload }) => {
+    ({ state, payload }, { triggerEvents }) => {
       const mfId = payload.id;
       if (state.initialized)
         throw Error("Microfrontends have already been initialized.");
@@ -24,9 +24,7 @@ export const init = mfConfig => {
         throw Error(`Microfrontend "${mfId}" has already been initialized.`);
 
       const targetMf = state.pending.filter(mf => mf.id === mfId)[0];
-      return {
-        events: [{ id: EVT.MF_CONNECTED, payload: targetMf }]
-      };
+      triggerEvents([{ id: EVT.MF_CONNECTED, payload: targetMf }])
     },
     error => {
       console.log(JSON.stringify(error, undefined, 4));
@@ -35,19 +33,17 @@ export const init = mfConfig => {
 
   mfAggregate.reactToEvent(
     EVT.MF_CONNECTED,
-    ({ state, payload }) => {
+    ({ state, payload }, { updateState, triggerEvents }) => {
       const { id } = payload;
       const returnValue = {
-        proposal: {
-          ...state,
-          loaded: state.loaded.concat(payload),
-          pending: state.pending.filter(mf => mf.id !== id)
-        }
+        ...state,
+        loaded: state.loaded.concat(payload),
+        pending: state.pending.filter(mf => mf.id !== id)
       };
-      if (returnValue.proposal.pending.length === 0) {
-        returnValue.events = [{ id: EVT.ALL_MFS_CONNECTED, payload: payload }];
+      if (returnValue.pending.length === 0) {
+        triggerEvents([{ id: EVT.ALL_MFS_CONNECTED, payload: payload }])
       }
-      return returnValue;
+      updateState(returnValue);
     },
     error => {
       console.log(JSON.stringify(error, undefined, 4));
@@ -56,7 +52,7 @@ export const init = mfConfig => {
 
   mfAggregate.reactToEvent(
     EVT.ALL_MFS_CONNECTED,
-    ({ state }) => {
+    ({ state }, { updateState, triggerEvents }) => {
       let events = [];
 
       state.loaded.forEach(mf => {
@@ -67,13 +63,12 @@ export const init = mfConfig => {
       mfAggregate.stopReactingToEvent(EVT.MF_CONNECTED);
       mfAggregate.stopReactingToEvent(EVT.ALL_MFS_CONNECTED);
 
-      return {
-        proposal: {
-          ...state,
-          initialized: true
-        },
-        events
-      };
+      updateState({
+        ...state,
+        initialized: true
+      })
+      triggerEvents(events)
+
     },
     error => {
       console.log(JSON.stringify(error, undefined, 4));

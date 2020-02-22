@@ -72,19 +72,42 @@ export const canHandleMessages = (self, emitMessage) => {
         const currentState = self.hasObservableState
           ? self.getCurrentState()
           : null;
+
+        // TODO: rejectCommand? Exception?
         const broadcasts = []
-        const { proposal = null, events = null } =
-          (await handler({ state: currentState, payload, broadcastEvent: (type, payload) => {
+        let nextEvents = []
+        let nextStateProposal = null;
 
+        const handlerInjections = {
+          broadcastEvent: (type, payload) => {
             broadcasts.push({ type, payload });
-
+          },
+          triggerEvents: (events) => {
+            nextEvents = events;
           }
-        })) || {};
+        }
 
-        if (isCommand && proposal)
-          throw Error("Command cannot change aggregate state");
+        if(!isCommand) {
+          handlerInjections.updateState = (nextState) => {
+            nextStateProposal = nextState
+          }
+        }
 
-        proposal && self.updateState(proposal);
+        await handler({
+          state: currentState,
+          payload
+        }, handlerInjections);
+
+        nextStateProposal && self.updateState(nextStateProposal);
+
+        nextEvents.forEach(e => {
+          emitMessage({
+            isCommand: false,
+            isExposed: false,
+            messageType: e.id,
+            payload: e.payload
+          });
+        });
 
         broadcasts.forEach(({ type, payload }) => emitMessage({
           isCommand: false,
@@ -93,19 +116,6 @@ export const canHandleMessages = (self, emitMessage) => {
           payload
         }))
 
-        if (events) {
-          events.forEach(e => {
-            emitMessage({
-              isCommand: false,
-              isExposed:
-                self.canExposeEvents &&
-                self.hasEventsToExpose() &&
-                self.getExposedEvents().includes(e.id),
-              messageType: e.id,
-              payload: e.payload
-            });
-          });
-        }
       }
     }
   };
