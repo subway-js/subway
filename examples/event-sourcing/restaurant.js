@@ -28,23 +28,6 @@
 
   const tabAggregate = Subway.selectAggregate(AGGREGATE);
 
-  // tabAggregate.bus.exposeCommandHandler("PublicCMD", ({ state, payload }) => {
-  //   console.log(">>>>>>>>", payload);
-  // });
-  // tabAggregate.bus.exposeEvents([EVT.TAB_OPENED]);
-  // setTimeout(() => {
-  //   tabAggregate.broadcastCommand("PublicCMD", { foo: "bar" });
-  //   setTimeout(() => {
-  //     tabAggregate.bus.removeCommandHandler("PublicCMD");
-  //     tabAggregate.broadcastCommand("PublicCMD", { foo: "bar" });
-  //   });
-  // }, 1000);
-  //
-  // tabAggregate.consumeEvent(EVT.TAB_OPENED, ({ payload }) => {
-  //   console.log("::::::CONSUMING EVENT", payload);
-  //   tabAggregate.stopConsumingEvent(EVT.TAB_OPENED);
-  // });
-
   const stopObserving = tabAggregate.observeState(nextState => {
     console.log(nextState);
     setTimeout(() => {
@@ -54,19 +37,19 @@
     }, 0);
   });
 
-  tabAggregate.addCommandHandler(CMD.OPEN_TAB, ({ state, payload }) => {
+  tabAggregate.reactToCommand(CMD.OPEN_TAB, ({ state, payload }) => {
     return {
       events: [{ id: EVT.TAB_OPENED, payload: { id: 0, table: 1, waiter: 1 } }]
     };
   });
 
-  tabAggregate.addEventHandler(EVT.TAB_OPENED, ({ state, payload }) => {
+  tabAggregate.reactToEvent(EVT.TAB_OPENED, ({ state, payload }) => {
     return {
       proposal: { open: true }
     };
   });
 
-  tabAggregate.addCommandHandler(CMD.PLACE_ORDER, ({ state, payload }) => {
+  tabAggregate.reactToCommand(CMD.PLACE_ORDER, ({ state, payload }) => {
     if (!state.open) throw Error(EX.TAB_NOT_OPEN);
     const drinkSample = payload.orderedItems.filter(i => i.isDrink);
     const foodSample = payload.orderedItems.filter(i => !i.isDrink);
@@ -79,7 +62,7 @@
     };
   });
 
-  tabAggregate.addEventHandler(EVT.DRINKS_ORDERED, ({ state, payload }) => {
+  tabAggregate.reactToEvent(EVT.DRINKS_ORDERED, ({ state, payload }) => {
     return {
       proposal: {
         ...state,
@@ -88,7 +71,7 @@
     };
   });
 
-  tabAggregate.addEventHandler(EVT.FOOD_ORDERED, ({ state, payload }) => {
+  tabAggregate.reactToEvent(EVT.FOOD_ORDERED, ({ state, payload }) => {
     return {
       proposal: {
         ...state,
@@ -97,7 +80,7 @@
     };
   });
 
-  tabAggregate.addCommandHandler(
+  tabAggregate.reactToCommand(
     CMD.MARK_DRINK_SERVED,
     ({ state, payload }) => {
       if (!state.open) throw Error(EX.TAB_NOT_OPEN);
@@ -118,7 +101,7 @@
     }
   );
 
-  tabAggregate.addEventHandler(EVT.DRINK_SERVED, ({ state, payload }) => {
+  tabAggregate.reactToEvent(EVT.DRINK_SERVED, ({ state, payload }) => {
     const nextOutstandingDrinks = state.outstandingDrinks.filter(
       drink => !payload.menuNumbers.includes(drink.menuNumber)
     );
@@ -135,7 +118,7 @@
     };
   });
 
-  tabAggregate.addCommandHandler(CMD.MARK_FOOD_SERVED, ({ state, payload }) => {
+  tabAggregate.reactToCommand(CMD.MARK_FOOD_SERVED, ({ state, payload }) => {
     if (!state.open) throw Error(EX.TAB_NOT_OPEN);
 
     if (state.outstandingFood) {
@@ -150,7 +133,7 @@
     };
   });
 
-  tabAggregate.addEventHandler(EVT.FOOD_SERVED, ({ state, payload }) => {
+  tabAggregate.reactToEvent(EVT.FOOD_SERVED, ({ state, payload }) => {
     const nextOutstandingFood = state.outstandingFood.filter(
       food => !payload.menuNumbers.includes(food.menuNumber)
     );
@@ -168,13 +151,21 @@
     };
   });
 
-  tabAggregate.addEventHandler(EVT.TAB_CLOSED, ({ state, payload }) => {
+  tabAggregate.reactToEvent(EVT.TAB_CLOSED, ({ state, payload }) => {
     const aggr = Subway.selectAggregate(AGGREGATE);
-    aggr.removeCommandHandler(CMD.OPEN_TAB);
-    aggr.removeCommandHandler(CMD.PLACE_ORDER);
-    aggr.removeCommandHandler(CMD.MARK_FOOD_SERVED);
-    aggr.removeCommandHandler(CMD.MARK_DRINK_SERVED);
-    aggr.removeCommandHandler(CMD.CLOSE_TAB);
+    aggr.stopReactingToCommand(CMD.OPEN_TAB);
+    aggr.stopReactingToCommand(CMD.PLACE_ORDER);
+    aggr.stopReactingToCommand(CMD.MARK_FOOD_SERVED);
+    aggr.stopReactingToCommand(CMD.MARK_DRINK_SERVED);
+    aggr.stopReactingToCommand(CMD.CLOSE_TAB);
+
+    aggr.stopReactingToEvent(EVT.TAB_OPENED)
+    aggr.stopReactingToEvent(EVT.DRINKS_ORDERED)
+    aggr.stopReactingToEvent(EVT.FOOD_ORDERED)
+    aggr.stopReactingToEvent(EVT.DRINK_SERVED)
+    aggr.stopReactingToEvent(EVT.FOOD_SERVED)
+    aggr.stopReactingToEvent(EVT.TAB_CLOSED)
+
     setTimeout(() => stopObserving());
     return {
       proposal: {
@@ -184,7 +175,7 @@
     };
   });
 
-  tabAggregate.addCommandHandler(CMD.CLOSE_TAB, ({ state, payload }) => {
+  tabAggregate.reactToCommand(CMD.CLOSE_TAB, ({ state, payload }) => {
     const { id, amountPaid } = payload;
     const orderValue = state.servedItemsValue;
     const tip = amountPaid - orderValue;
@@ -202,7 +193,7 @@
   // ------------- SIMULATE ---------------- //
   // --------------------------------------- //
 
-  tabAggregate.sendCommand(CMD.OPEN_TAB, { id: 0, table: 1, waiter: 1 });
+  tabAggregate.command(CMD.OPEN_TAB, { id: 0, table: 1, waiter: 1 });
 
   const foodSample = {
     menuNumber: 10,
@@ -222,21 +213,21 @@
   };
 
   setTimeout(() => {
-    tabAggregate.sendCommand(CMD.PLACE_ORDER, orderSample);
+    tabAggregate.command(CMD.PLACE_ORDER, orderSample);
   }, 500);
 
   setTimeout(() => {
-    tabAggregate.sendCommand(CMD.MARK_DRINK_SERVED, {
+    tabAggregate.command(CMD.MARK_DRINK_SERVED, {
       id: 0,
       menuNumbers: [20]
     });
-    tabAggregate.sendCommand(CMD.MARK_FOOD_SERVED, {
+    tabAggregate.command(CMD.MARK_FOOD_SERVED, {
       id: 0,
       menuNumbers: [10]
     });
   }, 1500);
 
   setTimeout(() => {
-    tabAggregate.sendCommand(CMD.CLOSE_TAB, { id: 0, amountPaid: 20 });
+    tabAggregate.command(CMD.CLOSE_TAB, { id: 0, amountPaid: 20 });
   }, 2500);
 })();

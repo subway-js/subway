@@ -16,21 +16,23 @@
 
   <!-- Microfrontends list -->
   <script type="text/javascript">
-    Subway.$microFrontends.compose({
-      mfs: [
-        {
-          id: "MF_1",
-          src: "http://127.0.0.1:8080/examples/micro-frontends/mf1.js",
-          domSelector: "#mf1"
-        },
-        {
-          id: "MF_2",
-          src: "http://127.0.0.1:8080/examples/micro-frontends/mf2.js",
-          domSelector: "#mf2"
-        },
-        { id: "MF_3", domSelector: "#mf3" }
-      ]
-    });
+    Subway
+      .microFrontends()
+      .compose({
+        mfs: [
+          {
+            id: "MF_1",
+            src: "http://127.0.0.1:8080/examples/micro-frontends/mf1.js",
+            domSelector: "#mf1"
+          },
+          {
+            id: "MF_2",
+            src: "http://127.0.0.1:8080/examples/micro-frontends/mf2.js",
+            domSelector: "#mf2"
+          },
+          { id: "MF_3", domSelector: "#mf3" }
+        ]
+      });
   </script>
   <script id="MF_3" src="/examples/micro-frontends/mf3.js"></script>
   <body>

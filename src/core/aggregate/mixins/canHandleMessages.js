@@ -72,14 +72,26 @@ export const canHandleMessages = (self, emitMessage) => {
         const currentState = self.hasObservableState
           ? self.getCurrentState()
           : null;
-
+        const broadcasts = []
         const { proposal = null, events = null } =
-          (await handler({ state: currentState, payload })) || {};
+          (await handler({ state: currentState, payload, broadcastEvent: (type, payload) => {
+
+            broadcasts.push({ type, payload });
+
+          }
+        })) || {};
 
         if (isCommand && proposal)
           throw Error("Command cannot change aggregate state");
 
         proposal && self.updateState(proposal);
+
+        broadcasts.forEach(({ type, payload }) => emitMessage({
+          isCommand: false,
+          isExposed: true,
+          messageType: type,
+          payload
+        }))
 
         if (events) {
           events.forEach(e => {

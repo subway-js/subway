@@ -123,7 +123,7 @@ You can send a command to an existing aggregate:
 ```js
 Subway
   .selectAggregate("counter")
-  .sendCommand("INIT_COUNTER", {
+  .command("INIT_COUNTER", {
     incrementValue: 1
   });
 ```
@@ -133,9 +133,10 @@ but in order for it to have any effect, a command handler must be in place:
 ```js
 Subway
   .selectAggregate("counter")
-  .setCommandHandler(
+  .reactToCommand(
     "INIT_COUNTER",
-    (aggregateState, { incrementValue }) => {
+    ({ state, payload }) => {
+      const { incrementValue } = payload;
       // ...
     }
   );
@@ -150,9 +151,10 @@ A command handler mainly perform a check on the commands being received (e.g. us
 ```js
 Subway
   .selectAggregate("counter")
-  .setCommandHandler(
+  .reactToCommand(
     "INIT_COUNTER",
-    (aggregateState, { incrementValue }) => {
+    ({ state, payload }) => {
+      const { incrementValue } = payload;
       return {
         events: [{
           id: 'COUNTER_READY',
@@ -176,10 +178,10 @@ We can't directly send an event to aggregate (they are the result of a command),
 ```js
 Subway
   .selectAggregate("counter")
-  .setEventHandler(
+  .reactToEvent(
     "COUNTER_READY",
-    (aggregateState, { currentValue, incrementValue }) => {
-
+    ({ state, payload }) => {
+      const { currentValue, incrementValue } = payload;
       const stateProposal = {
         ...aggregateState,
         status: 'ready',
@@ -208,10 +210,8 @@ We can observe an aggregate state in the following way:
 ```js
 Subway
   .selectAggregate("counter")
-  .observeState({
-    next: ({ nextState }) => {
+  .observeState(nextState => {
       // ...
-    }
   });
 ```
 
@@ -222,7 +222,8 @@ Every time an aggregate state is updated, the `next` function will be invoked.
 ```js
 Subway
   .selectAggregate("counter")
-  .exposeCommandHandler(
+  .publicChannel()
+  .reactToCommand(
     "RESET_COUNTER",
     ({ state, payload }) => {
       return {
@@ -234,7 +235,8 @@ Subway
 
 ```js
 anotherAggregate
-  .broadcastCommand("RESET_COUNTER");
+  .publicChannel()
+  .command("RESET_COUNTER");
 ```
 
 ### 6. Exposing Events
@@ -243,15 +245,47 @@ anotherAggregate
 ```js
 Subway
   .selectAggregate("counter")
-  .exposeEvents(["NEW_COUNTER_VALUE"]);
+  .reactToEvent(
+    "COUNTER_READY",
+    ({ state, payload, broadcastEvent }) => {
+      const { currentValue, incrementValue } = payload;
+
+      broadcastEvent('SOMETHING_INTERESTING_HAPPENED', payload);
+
+      // ..
+    }
+  );
 ```
 
 
 ```js
 anotherAggregate
-  .consumeEvent("NEW_COUNTER_VALUE", ({ counterValue }) => {
+  .publicChannel()
+  .reactToEvent("SOMETHING_INTERESTING_HAPPENED", payload => {
     // ...
   });
+```
+
+
+### 7. Exposing Components
+
+
+```js
+Subway
+  .selectAggregate("counter")
+  .publicChannel()
+  .publishComponent(
+    "ExportedComponent",
+    (args) => {
+      // return component
+    }
+  );
+```
+
+```js
+anotherAggregate
+  .publicChannel()
+  .getComponent("ExportedComponent");
 ```
 
 ### Micro-frontends
@@ -264,21 +298,23 @@ The first one is `Subway.helpers.composeMicroFrontends()`, which compose the app
 
 ```html
 <script type="text/javascript">
-  Subway.helpers.composeMicroFrontends({
-    mfs: [
-      {
-        id: "MF_1",
-        src: "http://127.0.0.1:8080/examples/microservices/mf1.js",
-        domSelector: "#mf1"
-      },
-      {
-        id: "MF_2",
-        src: "http://127.0.0.1:8080/examples/microservices/mf2.js",
-        domSelector: "#mf2"
-      },
-      { id: "MF_3", domSelector: "#mf3" }
-    ]
-  });
+  Subway
+    .microFrontends()
+    .compose({
+      mfs: [
+        {
+          id: "MF_1",
+          src: "http://127.0.0.1:8080/examples/microservices/mf1.js",
+          domSelector: "#mf1"
+        },
+        {
+          id: "MF_2",
+          src: "http://127.0.0.1:8080/examples/microservices/mf2.js",
+          domSelector: "#mf2"
+        },
+        { id: "MF_3", domSelector: "#mf3" }
+      ]
+    });
 </script>
 ```
 
@@ -292,8 +328,8 @@ It is also possible to statically load a micro-frontend by omitting the `src` at
 ```html
 <script type="text/javascript">
   Subway
-    .helpers
-    .composeMicroFrontends({
+    .microFrontends()
+    .compose({
       mfs: [{
         id: "MF_1",
         src: "http://127.0.0.1:8080/examples/microservices/mf1.js",
@@ -311,8 +347,8 @@ The second utility function is the one used by each micro-frontend to install it
 
 ```js
 Subway
-  .helpers
-  .installMicroFrontend('MF_1', ({ domSelector }) => {
+  .microFrontends()
+  .install('MF_1', ({ domSelector }) => {
   // bootstrap your app in the HTML element identified by 'domSelector'
 });
 ```

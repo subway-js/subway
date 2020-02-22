@@ -54,21 +54,19 @@ export const selectAggregate = name => {
 };
 
 const buildAggregateApi = aggregate => ({
-  addEventHandler: (evtType, handler, onError) => {
+  reactToEvent: (evtType, handler, onError) => {
     aggregate.addEventHandler(evtType, handler, onError);
   },
-  removeEventHandler: evtType => {
+  stopReactingToEvent: evtType => {
     aggregate.removeEventHandler(evtType);
   },
-
-  addCommandHandler: (cmdType, handler, onError) => {
+  reactToCommand: (cmdType, handler, onError) => {
     aggregate.addCommandHandler(cmdType, handler, onError);
   },
-  removeCommandHandler: cmdType => {
+  stopReactingToCommand: cmdType => {
     aggregate.removeCommandHandler(cmdType);
   },
-
-  sendCommand: (cmdType, payload) => {
+  command: (cmdType, payload) => {
     // TODO reject command on error
     messageQueue.pushMessage(
       { isCommand: true, messageType: cmdType, payload },
@@ -76,58 +74,64 @@ const buildAggregateApi = aggregate => ({
       aggregate.name
     );
   },
-  broadcastCommand: (type, payload) => {
-    messageQueue.pushMessage(
-      { isCommand: true, isBroadcasted: true, messageType: type, payload },
-      aggregate.name
-    );
-  },
+
   observeState: onNextState => {
     return aggregate.observeState(onNextState);
   },
-  consumeEvent: (evtType, handler, onError) => {
 
-    // handler(evtType, publicProxy.getExposedEventLastPayload(evtType));
-    return publicProxy.subscribeToExposedEvent(evtType, handler);
-  },
-  exposeCommandHandler: (cmdType, handler, onError) => {
-    aggregate.addCommandHandler(cmdType, handler, onError);
-    const unsubscribe = publicProxy.exposeCommandHandler(
-      cmdType,
-      aggregate.name
-    );
+  publicChannel: () => ({
 
-    return () => {
-      unsubscribe();
-      aggregate.removeCommandHandler(cmdType);
-    };
-  },
-  exposeEvent: event => {
-    const paramType = typeof event;
-    let eventType = null;
-    let payload = null;
-    if (paramType === "string") {
-      eventType = event;
-    }
-    if (event && paramType === "object") {
-      const { type, defaultValue } = event;
-      if(defaultValue) {
-        payload = defaultValue;
-      }
-      // publicProxy.updateLastEventPayload({type, payload: defaultValue})
-      eventType = type;
-    }
-    publicProxy.notifyExposedEventSubscribers(eventType, payload || null)
-    aggregate.exposeEvent(eventType)
-  },
-  exposeEvents: eventTypes => {
-    aggregate.exposeEvents(eventTypes)
-  },
+    command: (type, payload) => {
+      messageQueue.pushMessage(
+        { isCommand: true, isBroadcasted: true, messageType: type, payload },
+        aggregate.name
+      );
+    },
+    reactToEvent: (evtType, handler, onError) => {
+      return publicProxy.subscribeToExposedEvent(evtType, handler);
+    },
+    reactToCommand: (cmdType, handler, onError) => {
+      aggregate.addCommandHandler(cmdType, handler, onError);
+      const unsubscribe = publicProxy.exposeCommandHandler(
+        cmdType,
+        aggregate.name
+      );
 
-  $experimental: {
-    importComponent: id => publicProxy.getComponentById(id),
-    exportComponent: (id, factoryFunction) => {
+      return () => {
+        unsubscribe();
+        aggregate.removeCommandHandler(cmdType);
+      };
+    },
+    getComponent: id => publicProxy.getComponentById(id),
+    publishComponent: (id, factoryFunction) => {
       publicProxy.exportComponent(id, factoryFunction, aggregate.name);
     }
-  }
+    // exposeEvent: event => {
+    //   const paramType = typeof event;
+    //   let eventType = null;
+    //   let payload = null;
+    //   if (paramType === "string") {
+    //     eventType = event;
+    //   }
+    //   if (event && paramType === "object") {
+    //     const { type, defaultValue } = event;
+    //     if(defaultValue) {
+    //       payload = defaultValue;
+    //     }
+    //     // publicProxy.updateLastEventPayload({type, payload: defaultValue})
+    //     eventType = type;
+    //   }
+    //   publicProxy.notifyExposedEventSubscribers(eventType, payload || null)
+    //   aggregate.exposeEvent(eventType)
+    // },
+    // exposeEvents: eventTypes => {
+    //   aggregate.exposeEvents(eventTypes)
+    // },
+  }),
+  // $experimental: {
+  //   importComponent: id => publicProxy.getComponentById(id),
+  //   exportComponent: (id, factoryFunction) => {
+  //     publicProxy.exportComponent(id, factoryFunction, aggregate.name);
+  //   }
+  // }
 });

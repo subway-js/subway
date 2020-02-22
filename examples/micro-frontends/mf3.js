@@ -6,7 +6,7 @@
     let current = $element.innerHTML;
     $element.innerHTML = " > " + line + "<br/>" + current;
   };
-  Subway.$microFrontends.install(MF_ID, ({ domSelector }) => {
+  Subway.microFrontends().install(MF_ID, ({ domSelector }) => {
     $element = document.querySelector(domSelector);
     log(MF_ID + " mounted on " + domSelector);
     init();
@@ -16,7 +16,7 @@
     const aggregate = Subway.createAggregate(AGGREGATE_NAME);
 
     // setTimeout(() => {
-      aggregate.consumeEvent("ADD_TO_ACCUMULATOR_REQUESTED", (type, event) => {
+      aggregate.publicChannel().reactToEvent("SOMETHING_INTERESTING_HAPPENED", (type, event) => {
           log("Request tracked: add " + (event ? event.amount : 'null'));
 
       });
@@ -24,7 +24,7 @@
 
 
     setTimeout(() => {
-      const importedComponent = aggregate.$experimental.importComponent(
+      const importedComponent = aggregate.publicChannel().getComponent(
         "increaseAccumulatorButton"
       );
       const component = importedComponent.factoryFunction(

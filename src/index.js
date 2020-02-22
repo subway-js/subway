@@ -23,10 +23,10 @@ const Subway = {
   //   observAggregateState: () => {},
   // },
 
-  $microFrontends: {
+  microFrontends: () => ({
     compose: MicroFrontendManager.init,
     install: MicroFrontendManager.connect
-  }
+  })
 };
 
 export default Subway;

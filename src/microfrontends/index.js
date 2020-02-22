@@ -14,7 +14,7 @@ export const init = mfConfig => {
     pending: [...mfConfig.mfs]
   });
 
-  mfAggregate.addCommandHandler(
+  mfAggregate.reactToCommand(
     CMD.CONNECT_MF,
     ({ state, payload }) => {
       const mfId = payload.id;
@@ -33,7 +33,7 @@ export const init = mfConfig => {
     }
   );
 
-  mfAggregate.addEventHandler(
+  mfAggregate.reactToEvent(
     EVT.MF_CONNECTED,
     ({ state, payload }) => {
       const { id } = payload;
@@ -54,7 +54,7 @@ export const init = mfConfig => {
     }
   );
 
-  mfAggregate.addEventHandler(
+  mfAggregate.reactToEvent(
     EVT.ALL_MFS_CONNECTED,
     ({ state }) => {
       let events = [];
@@ -63,9 +63,9 @@ export const init = mfConfig => {
         events = events.concat({ id: EVT.MF_ACK_SENT(mf.id), payload: mf });
       });
 
-      mfAggregate.removeCommandHandler(CMD.CONNECT_MF);
-      mfAggregate.removeEventHandler(EVT.MF_CONNECTED);
-      mfAggregate.removeEventHandler(EVT.ALL_MFS_CONNECTED);
+      mfAggregate.stopReactingToCommand(CMD.CONNECT_MF);
+      mfAggregate.stopReactingToEvent(EVT.MF_CONNECTED);
+      mfAggregate.stopReactingToEvent(EVT.ALL_MFS_CONNECTED);
 
       return {
         proposal: {
@@ -86,10 +86,10 @@ export const init = mfConfig => {
 export const connect = (microFrontendId, onConnected) => {
   const HACK_EVENT = EVT.MF_ACK_SENT(microFrontendId);
 
-  mfAggregate.addEventHandler(HACK_EVENT, ({ payload }) => {
+  mfAggregate.reactToEvent(HACK_EVENT, ({ payload }) => {
     onConnected(payload);
-    mfAggregate.removeEventHandler(HACK_EVENT);
+    mfAggregate.stopReactingToEvent(HACK_EVENT);
   });
 
-  mfAggregate.sendCommand(CMD.CONNECT_MF, { id: microFrontendId });
+  mfAggregate.command(CMD.CONNECT_MF, { id: microFrontendId });
 };

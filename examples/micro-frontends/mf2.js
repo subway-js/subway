@@ -6,7 +6,7 @@
     let current = $element.innerHTML;
     $element.innerHTML = " > " + line + "<br/>" + current;
   };
-  Subway.$microFrontends.install(MF_ID, ({ domSelector }) => {
+  Subway.microFrontends().install(MF_ID, ({ domSelector }) => {
     $element = document.querySelector(domSelector);
     log(MF_ID + " mounted on " + domSelector);
     init();
@@ -19,19 +19,18 @@
       log("current value: " + sum);
     });
 
-    aggregate.exposeEvent({ type: "ADD_TO_ACCUMULATOR_REQUESTED", defaultValue: { amount: 0 } });
-    // aggregate.exposeEvent("ADD_TO_ACCUMULATOR_REQUESTED");
-
-    aggregate.exposeCommandHandler(
-      "ADD_TO_ACCUMULATOR",
-      ({ state, payload }) => {
-        return {
-          events: [{ id: "ADD_TO_ACCUMULATOR_REQUESTED", payload }]
-        };
-      }
+    aggregate
+      .publicChannel()
+      .reactToCommand("ADD_TO_ACCUMULATOR",
+        ({ state, payload, broadcastEvent }) => {
+          broadcastEvent('SOMETHING_INTERESTING_HAPPENED', payload)
+          return {
+            events: [{ id: "ADD_TO_ACCUMULATOR_REQUESTED", payload }]
+          };
+        }
     );
 
-    aggregate.addEventHandler(
+    aggregate.reactToEvent(
       "ADD_TO_ACCUMULATOR_REQUESTED",
       ({ state, payload }) => {
         return {
