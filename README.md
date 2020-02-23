@@ -168,7 +168,6 @@ Subway
 
 Commands cannot change the aggregate state: they represent an **intent** to act on it, and their name usually includes a **verb in the imperative mood**.
 
-
 ### 3. Handling events
 
 We can't directly send an event to aggregate (they are the result of a command), but we can define a handler to make use of them:
@@ -279,6 +278,64 @@ anotherAggregate
   .getComponent("ExportedComponent");
 ```
 
+### Managing errors
+
+There are tow ways to manage errors in SubwayJS:
+- **commands rejection**
+- *TODO: events flow*
+
+##### Commands rejection
+
+This is the first level of errors management we can perform in SubwayJS.
+We can reject a command by using the `rejectCommand` function injected in any command handler:
+
+```js
+Subway
+  .selectAggregate("counter")
+  .reactToCommand(
+    "INIT_COUNTER",
+    ({ payload }, { triggerEvents, rejectCommand }) => {
+
+      if(!payload.incrementValue) {
+        rejectCommand( 'Missing required field for INIT_COUNTER command', {
+          fields: ['incrementValue']
+        });
+        return;
+      }
+
+      triggerEvents([{
+        id: 'COUNTER_READY',
+        payload: {
+          currentValue: 0,
+          incrementValue: payload.incrementValue
+        }
+      }]);
+    }
+  );
+```
+
+This mechanism is a useful one as a first checkpoint for things like:
+- payload validation
+- error on API response
+etc.
+
+We can handle a rejection by providing a callback when triggering a command:
+
+```js
+Subway
+  .selectAggregate("counter")
+  .command("INIT_COUNTER", {
+    incrementValue: 1
+  }, ({ reasonString, meta }) => {
+    // ...
+  });
+```
+
+
+##### Events flow
+
+- TODO
+
 ### Micro-frontends
 
 Check the [micro-frontends example](https://github.com/subway-js/subway/tree/master/examples/micro-frontends) for the full code.
@@ -346,7 +403,7 @@ Subway
 
 ## Concepts
 
-**TO DO: a quick introduction to the main concept that inspire SubwayJS, such as:**
+**TO DO: a quick introduction to the main concepts that inspire SubwayJS, such as:**
 - DDD concepts
 - event sourcing concepts
 - CQRS Concepts

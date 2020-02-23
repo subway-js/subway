@@ -7,7 +7,7 @@ export const canHandleMessages = (self, emitMessage) => {
     handlersMap,
     messageType,
     handler,
-    onError
+    onRejected
   }) => {
     if (handlersMap.has(messageType)) {
       throw Error(
@@ -16,7 +16,7 @@ export const canHandleMessages = (self, emitMessage) => {
     }
     handlersMap.set(messageType, {
       handler,
-      onError
+      onRejected
     });
   };
   const removeHandler = ({ isCommand, handlersMap, messageType }) => {
@@ -31,13 +31,13 @@ export const canHandleMessages = (self, emitMessage) => {
   return {
     ...self,
     canHandleMessages: true,
-    addCommandHandler: (cmdType, handler, onError) => {
+    addCommandHandler: (cmdType, handler, onRejected) => {
       addHandler({
         isCommand: true,
         handlersMap: commandHandlers,
         messageType: cmdType,
         handler,
-        onError
+        onRejected
       });
     },
     removeCommandHandler: (cmdType, handler, onError) => {
@@ -47,13 +47,12 @@ export const canHandleMessages = (self, emitMessage) => {
         messageType: cmdType
       });
     },
-    addEventHandler: (evtType, handler, onError) => {
+    addEventHandler: (evtType, handler) => {
       addHandler({
         isCommand: false,
         handlersMap: eventHandlers,
         messageType: evtType,
         handler,
-        onError
       });
     },
     removeEventHandler: evtType => {
@@ -63,12 +62,11 @@ export const canHandleMessages = (self, emitMessage) => {
         messageType: evtType
       });
     },
-    handleMessage: async nextMessage => {
-      const { message, meta } = nextMessage;
+    handleMessage: async ({ message, meta, onCommandRejected = null }) => {
       const { isCommand, messageType, payload } = message;
       const handlersMap = isCommand ? commandHandlers : eventHandlers;
       if (handlersMap.has(messageType)) {
-        const { handler, onError = null } = handlersMap.get(messageType);
+        const { handler } = handlersMap.get(messageType);
         const currentState = self.hasObservableState
           ? self.getCurrentState()
           : null;
@@ -87,16 +85,22 @@ export const canHandleMessages = (self, emitMessage) => {
           }
         }
 
+        if(isCommand) {
+          handlerInjections.rejectCommand = (reasonString, meta) => {
+            onCommandRejected && onCommandRejected({ reasonString, meta })
+          }
+        }
         if(!isCommand) {
           handlerInjections.updateState = (nextState) => {
             nextStateProposal = nextState
           }
         }
 
-        await handler({
-          state: currentState,
-          payload
-        }, handlerInjections);
+          await handler({
+            state: currentState,
+            payload
+          }, handlerInjections);
+
 
         nextStateProposal && self.updateState(nextStateProposal);
 

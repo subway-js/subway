@@ -37,7 +37,12 @@
     }, 0);
   });
 
-  tabAggregate.reactToCommand(CMD.OPEN_TAB, ({ state, payload }, { triggerEvents }) => {
+  tabAggregate.reactToCommand(CMD.OPEN_TAB, ({ state, payload }, { triggerEvents, rejectCommand }) => {
+
+    if(!payload.table || !payload.waiter) {
+      rejectCommand('Missing required fields in OPEN_TAB command payload', { missing: ['table', 'waiter']})
+      return;
+    }
     triggerEvents([{ id: EVT.TAB_OPENED, payload: { id: 0, table: 1, waiter: 1 } }])
 
   });
@@ -175,6 +180,10 @@
   // --------------------------------------- //
   // ------------- SIMULATE ---------------- //
   // --------------------------------------- //
+
+  tabAggregate.command(CMD.OPEN_TAB, { id: 0 }, (payload) => {
+    console.error('[COMMAND REJECTED] >> CMD.OPEN_TAB:', payload)
+  });
 
   tabAggregate.command(CMD.OPEN_TAB, { id: 0, table: 1, waiter: 1 });
 

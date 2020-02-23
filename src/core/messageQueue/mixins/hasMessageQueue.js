@@ -17,7 +17,7 @@ export const hasMessageQueue = (self, initialMessages = []) => {
       onNextMessage = cb;
     },
     isQueueEmpty: () => messageStore.length <= 0,
-    pushMessage: (message, sourceAggregateName) => {
+    pushMessage: (message, sourceAggregateName, onCommandRejected = null) => {
       // TODO factory for messages
       messageStore.push({
         id: count++, // TODO needed? generate, not from 0
@@ -26,7 +26,8 @@ export const hasMessageQueue = (self, initialMessages = []) => {
         meta: {
           sourceAggregateName,
           received: Date.now()
-        }
+        },
+        onCommandRejected
       });
       flushQueue();
     }

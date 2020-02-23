@@ -53,24 +53,25 @@ export const selectAggregate = name => {
 };
 
 const buildAggregateApi = aggregate => ({
-  reactToEvent: (evtType, handler, onError) => {
-    aggregate.addEventHandler(evtType, handler, onError);
+  reactToEvent: (evtType, handler) => {
+    aggregate.addEventHandler(evtType, handler);
   },
   stopReactingToEvent: evtType => {
     aggregate.removeEventHandler(evtType);
   },
-  reactToCommand: (cmdType, handler, onError) => {
-    aggregate.addCommandHandler(cmdType, handler, onError);
+  reactToCommand: (cmdType, handler, onRejected) => {
+    aggregate.addCommandHandler(cmdType, handler, onRejected);
   },
   stopReactingToCommand: cmdType => {
     aggregate.removeCommandHandler(cmdType);
   },
-  command: (cmdType, payload) => {
+  command: (cmdType, payload = {}, onCommandRejected = null) => {
     // TODO reject command on error
+    // onRejected()
     messageQueue.pushMessage(
       { isCommand: true, messageType: cmdType, payload },
       aggregate.name,
-      aggregate.name
+      onCommandRejected
     );
   },
 
