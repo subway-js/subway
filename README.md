@@ -280,14 +280,7 @@ anotherAggregate
 
 ### Managing errors
 
-There are tow ways to manage errors in SubwayJS:
-- **commands rejection**
-- *TODO: events flow*
-
-##### Commands rejection
-
-This is the first level of errors management we can perform in SubwayJS.
-We can reject a command by using the `rejectCommand` function injected in any command handler:
+This is a first level of errors management we can perform in SubwayJS is **command rejection**: when triggering a command, it may be rejected by using the `rejectCommand` function injected in any command handler:
 
 ```js
 Subway
@@ -314,7 +307,7 @@ Subway
   );
 ```
 
-This mechanism is a useful one as a first checkpoint for things like:
+This mechanism can be used for simple scenarios like:
 - payload validation
 - error on API response
 etc.
@@ -331,10 +324,30 @@ Subway
   });
 ```
 
+What happens when something happens in some other point of a SubwayJS application lifecycle?
 
-##### Events flow
+When we talk about errors in JavaScript, we usually think about try/catch clauses, callbacks, or rejecting promises. SubwayJS approach to errors is to consider them as any other event in the system: they just describe a different path or flow.
 
-- TODO
+As an example, when logging in, there are a variety of things that could go wrong:
+- wrong credentials
+- no internet connection
+- authentication token expired
+
+And if we are already logged in, and we are processing a payment:
+- the user may not have enough funds
+- some billing information might be required
+- updated T&Cs may need to be accepted
+etc.
+
+Commands rejection is a useful tool, but when an exception/error occurs inside an event handler (and we can have 'sagas' that involve multiple event handlers), we don't have such tool as we have already lost any link to the original command that triggered the chain of events.
+
+Event handlers can trigger meaningful events, that have a real meaning in the current aggregate, e.g.:
+- AuthenticationTokenExpired
+- T&CAcceptanceRequired
+- etc.
+
+With such events we can send the relevant payload for our next aggregate store in order to provide all the details we need in the UI to properly deal with any error (or do something in background e.g. refresh an authentication token without even bothering the user).
+
 
 ### Micro-frontends
 
