@@ -16,17 +16,19 @@ From **Event Sourcing and CQRS**:
 
 I am working on some projects (check the SubwayJS GitHub account or keep reading) as a way to shape the final API, architecture, and features of SubwayJS: please be aware that **the codebase structure, API and documentation are in a very dynamic state at the moment**. The **projects listed below shouldn't be consider a final example of how to use this library as well**: they are changing frequently and may not be using the latest SubwayJS version.
 
-## Projects
+## POC (Proof of Concept) projects
 
 Here's some details about the projects that are helping me shaping SubwayJS:
 
-- there is a [nice tutorial](https://cqrs.nu/tutorial/cs/01-design) that guides the reader toward the design of a system in a 'CQRS' way: `/example/event-sourcing/` provide a very basic implementation
+- this [nice tutorial](https://cqrs.nu/tutorial/cs/01-design) guides the reader toward the design of a system in a 'CQRS' way: `/example/event-sourcing/` is a playground for SubwayJS API and a very basic implementation of such tutorial
 
-- `/example/micro-frontend/` explores the micro-frontends support
+- `/example/micro-frontend/` is a playground for the micro-frontends support of SubwayJS
 
-- I implemented the [tutorial mentioned before](https://cqrs.nu/tutorial/cs/01-design) as a [react web application](https://github.com/subway-js/subway-react-restaurant), to start understanding how SubwayJS development looks like with ReactJS.
+- I implemented the [tutorial mentioned before](https://cqrs.nu/tutorial/cs/01-design) as a [react web application](https://github.com/subway-js/subway-react-restaurant), to start understanding how SubwayJS development looks like with ReactJS - I am not updating this project anymore
 
-- I started implementing an actual use case, an [ecommerce react website](https://github.com/subway-js/subway-react-ecommerce), to understand the value of the library in a real use-case (session, API calls, communication between sub-systems), and also to start thinking about a possible subway-react utility library
+- I started implementing an actual use case, an [ecommerce react website](https://github.com/subway-js/subway-react-ecommerce), to understand the value of the library in a real use-case (session, API calls, communication between sub-systems), and also to start thinking about a possible subway-react utility library.
+
+- I am investigating micro frontends in React in the [subway-react-ecommerce-microfrontends repository](https://github.com/subway-js/subway-react-ecommerce-microfrontends) by splitting the react ecommerce website into micro frontends (possibly in multiple ways)
 
 ## Understanding SubwayJS model
 
@@ -68,6 +70,8 @@ Features under investigation:
 Having highly decoupled aggregates (each of them with its own logic, entities, state and UI), makes it easy to transition to a micro-frontends approach.
 
 SubwayJS provides a **micro-frontends orchestration utility** (implemented with the same SubwayJS library through aggregates, commands and events) to make it easy to split each aggregate (or domain, or sub-system) into its own project/codebase with its own release pipeline.
+
+Check [subway-react-ecommerce-microfrontends](https://github.com/subway-js/subway-react-ecommerce-microfrontends) for updates.
 
 ## Next steps
 
@@ -373,7 +377,7 @@ With such events we can send the relevant payload for our next aggregate store i
 
 ### Micro-frontends
 
-Check the [micro-frontends example](https://github.com/subway-js/subway/tree/master/examples/micro-frontends) for the full code.
+Check the [micro-frontends example](https://github.com/subway-js/subway/tree/master/examples/micro-frontends) for the full code or [subway-react-ecommerce-microfrontends](https://github.com/subway-js/subway-react-ecommerce-microfrontends) for microfrontends with SubwayJS and React.
 
 Subway comes with two utility functions to setup your micro-frontends.
 
