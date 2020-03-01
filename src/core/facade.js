@@ -102,9 +102,11 @@ const buildAggregateApi = aggregate => ({
         aggregate.removeCommandHandler(cmdType);
       };
     },
-    getComponent: id => publicProxy.getComponentById(id),
-    publishComponent: (id, factoryFunction) => {
-      publicProxy.exportComponent(id, factoryFunction, aggregate.name);
+    // getComponent: id => publicProxy.getComponentById(id),
+    importComponent: (id, onComponentReady) => publicProxy.importComponent(id, onComponentReady),
+
+    publishComponent: (id, mount, unmount) => {
+      publicProxy.exportComponent(id, mount, unmount, aggregate.name);
     }
   }),
 });

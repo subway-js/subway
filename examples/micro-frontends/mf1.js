@@ -16,13 +16,7 @@
   });
 
   function fn() {
-    Subway
-      .selectAggregate(AGGREGATE_NAME)
-      .publicChannel()
-        .command(
-          "ADD_TO_ACCUMULATOR", {
-            amount: 23
-          });
+
   }
 
   const init = () => {
@@ -32,11 +26,22 @@
       .publicChannel()
       .publishComponent(
         "increaseAccumulatorButton",
-        buttonLabel => {
+        (attrs, { selector }) => {
           var btn = document.createElement("button");
-          btn.onclick = fn;
-          btn.innerHTML = buttonLabel;
-          return btn;
+          btn.onclick = function() {
+            Subway
+              .selectAggregate(AGGREGATE_NAME)
+              .publicChannel()
+                .command(
+                  "ADD_TO_ACCUMULATOR", {
+                    amount: 23
+                  });
+          };
+          btn.innerHTML = attrs.label;
+          document.querySelector(selector).append(btn)
+        },
+        ({ selector }) => {
+          document.querySelector(selector).innerHTML = '';
         }
       );
 
@@ -47,6 +52,7 @@
         .command("ADD_TO_ACCUMULATOR", { amount: nextAmount });
           log("broadcasting ADD_TO_ACCUMULATOR command with value " + nextAmount);
         });
+
     log("Click on this area to send a command to the counter");
   };
 })();

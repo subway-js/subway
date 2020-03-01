@@ -266,8 +266,22 @@ Subway
   .publicChannel()
   .publishComponent(
     "ExportedComponent",
-    (args) => {
-      // return component
+    // Mount function:
+    (params, { selector, element }) => {
+      /*
+        Mount the component on the DOM
+        element specified by:
+        - the selector, to be used with document.querySelector
+        - or the element itself
+
+        Parameters are used to customize the component
+      */
+    },
+    // Unmount function:
+    ({ selector, element }) => {
+      /*
+        Cleanup
+      */
     }
   );
 ```
@@ -275,7 +289,15 @@ Subway
 ```js
 anotherAggregate
   .publicChannel()
-  .getComponent("ExportedComponent");
+  .importComponent(
+    "ExportedComponent",
+    ({ mount }) => {
+      mount({
+        label: 'Custom Button'
+      }, {
+        selector: '#buttonContainer'
+      })
+    });
 ```
 
 ### Managing errors
