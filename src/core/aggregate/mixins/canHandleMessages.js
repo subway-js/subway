@@ -3,7 +3,6 @@ export const canHandleMessages = (self, emitMessage) => {
   const eventHandlers = new Map();
 
   const addHandler = ({
-    isCommand,
     handlersMap,
     messageType,
     handler,
