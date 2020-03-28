@@ -1,22 +1,20 @@
-export const hasObservableState = (self, initialState = {}) => {
-  const subscribers = new Map();
+export const hasObservableState = (self, initialState = {}, subscribers = new Map()) => {
   let state = { ...initialState };
   return {
     ...self,
     hasObservableState: true,
     observeState: onNextState => {
       const subscriptionId = Date.now();
-      onNextState(state); //({...state}) //{...state} _?
+      onNextState(state);
       subscribers.set(subscriptionId, onNextState);
-      return () => {
-        subscribers.delete(subscriptionId);
-      };
+      return () => subscribers.delete(subscriptionId);
     },
     updateState: nextState => {
-      state = nextState; //{ ...nextState };
-      console.log(`> nextState for ${self.name}:`, nextState);
-      subscribers.forEach(onNextState => onNextState(nextState));
+      const next = { ...state, ...nextState };
+      state = next;
+      console.log(`> nextState for ${self.name}:`, next);
+      subscribers.forEach(onNextState => onNextState(next));
     },
-    getCurrentState: () => state //({...state})
+    getCurrentState: () => state
   };
 };
