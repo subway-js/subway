@@ -102,8 +102,8 @@ describe("Aggregate / Mixins / hasObservableState", () => {
   describe("Runtime constructor params check", () => {
 
     const SELF_PARAM_ERR_MSG = 'Invalid <self> argument: must be an object with a <name> property.';
-    const SELF_INITIAL_STATE_ERR_MSG = 'Invalid <initialState> argument: must be an object.';
-    const SELF_SUBSCRIBERS_ERR_MSG = 'Invalid <subscribers> argument: must be a Map.';
+    const INITIAL_STATE_PARAM_ERR_MSG = 'Invalid <initialState> argument: must be an object.';
+    const SUBSCRIBERS_PARAM_ERR_MSG = 'Invalid <subscribers> argument: must be a Map.';
 
     test("Check <self> parameters when initialized", () => {
       expect(() => hasObservableState({})).toThrowError(new Error(SELF_PARAM_ERR_MSG));
@@ -116,21 +116,20 @@ describe("Aggregate / Mixins / hasObservableState", () => {
     });
   
     test("Check <initialState> parameters when initialized", () => {
-      expect(() => hasObservableState(self, null)).toThrowError(new Error(SELF_INITIAL_STATE_ERR_MSG));
-      expect(() => hasObservableState(self, 4)).toThrowError(new Error(SELF_INITIAL_STATE_ERR_MSG));
-      expect(() => hasObservableState(self, new Date())).toThrowError(new Error(SELF_INITIAL_STATE_ERR_MSG));
-      expect(() => hasObservableState(self, [])).toThrowError(new Error(SELF_INITIAL_STATE_ERR_MSG));
-      expect(() => hasObservableState(self, () => {})).toThrowError(new Error(SELF_INITIAL_STATE_ERR_MSG));
+      expect(() => hasObservableState(self, null)).toThrowError(new Error(INITIAL_STATE_PARAM_ERR_MSG));
+      expect(() => hasObservableState(self, 4)).toThrowError(new Error(INITIAL_STATE_PARAM_ERR_MSG));
+      expect(() => hasObservableState(self, new Date())).toThrowError(new Error(INITIAL_STATE_PARAM_ERR_MSG));
+      expect(() => hasObservableState(self, [])).toThrowError(new Error(INITIAL_STATE_PARAM_ERR_MSG));
+      expect(() => hasObservableState(self, () => {})).toThrowError(new Error(INITIAL_STATE_PARAM_ERR_MSG));
     }); 
   
     test("Check <subscribers> parameters when initialized", () => {
-      // expect(() => hasObservableState(self, {}, undefined)).toThrowError(new Error(SELF_SUBSCRIBERS_ERR_MSG));
-      expect(() => hasObservableState(self, {}, null)).toThrowError(new Error(SELF_SUBSCRIBERS_ERR_MSG));
-      expect(() => hasObservableState(self, {}, 4)).toThrowError(new Error(SELF_SUBSCRIBERS_ERR_MSG));
-      expect(() => hasObservableState(self, {}, new Date())).toThrowError(new Error(SELF_SUBSCRIBERS_ERR_MSG));
-      expect(() => hasObservableState(self, {}, [])).toThrowError(new Error(SELF_SUBSCRIBERS_ERR_MSG));
-      expect(() => hasObservableState(self, {}, new Set())).toThrowError(new Error(SELF_SUBSCRIBERS_ERR_MSG));
-      expect(() => hasObservableState(self, {}, () => {})).toThrowError(new Error(SELF_SUBSCRIBERS_ERR_MSG));
+      expect(() => hasObservableState(self, {}, null)).toThrowError(new Error(SUBSCRIBERS_PARAM_ERR_MSG));
+      expect(() => hasObservableState(self, {}, 4)).toThrowError(new Error(SUBSCRIBERS_PARAM_ERR_MSG));
+      expect(() => hasObservableState(self, {}, new Date())).toThrowError(new Error(SUBSCRIBERS_PARAM_ERR_MSG));
+      expect(() => hasObservableState(self, {}, [])).toThrowError(new Error(SUBSCRIBERS_PARAM_ERR_MSG));
+      expect(() => hasObservableState(self, {}, new Set())).toThrowError(new Error(SUBSCRIBERS_PARAM_ERR_MSG));
+      expect(() => hasObservableState(self, {}, () => {})).toThrowError(new Error(SUBSCRIBERS_PARAM_ERR_MSG));
     }); 
   
   });

@@ -1,6 +1,6 @@
 {
   "name": "@subway-js/subway",
-  "version": "0.17.5",
+  "version": "0.17.6",
   "description": "Subway is a personal project from [danilorossi](https://github.com/danilorossi) that explores the idea of bringing **event sourcing & CQRS** to the browser for micro-frontends development.",
   "repository": {
     "type": "git",
@@ -33,6 +33,7 @@
     "build": "rollup -c",
     "dev": "rollup -c -w",
     "test": "jest --coverage --collectCoverageFrom=src/**/*.js",
+    "test:dev-watch": "jest --watchAll",
     "pretest": "npm run build",
     "prettier": "npx prettier --write src/**",
     "deploy.npm": "npm publish --access public"

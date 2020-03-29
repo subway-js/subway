@@ -1,12 +1,31 @@
-export const canHandleMessages = (self, emitMessage) => {
-  const commandHandlers = new Map();
-  const eventHandlers = new Map();
+export const canHandleMessages = (
+  self, 
+  emitMessage,
+  commandHandlers = new Map(),
+  eventHandlers = new Map()
+) => {
+
+  if(!self || !self.name) {
+    throw new Error('Invalid <self> argument: must be an object with a <name> property.');
+  }
+
+  if(Object.prototype.toString.call(emitMessage) !== '[object Function]') {
+    throw new Error('Invalid <emitMessage> argument: must be a function.');
+  }
+
+  if(Object.prototype.toString.call(commandHandlers) !== '[object Map]') {
+    throw new Error('Invalid <commandHandlers> argument: must be a Map.');
+  }
+
+  if(Object.prototype.toString.call(eventHandlers) !== '[object Map]') {
+    throw new Error('Invalid <eventHandlers> argument: must be a Map.');
+  }
 
   const addHandler = ({
     handlersMap,
     messageType,
     handler,
-    onRejected
+    onRejected = null
   }) => {
     if (handlersMap.has(messageType)) {
       throw Error(
@@ -39,7 +58,7 @@ export const canHandleMessages = (self, emitMessage) => {
         onRejected
       });
     },
-    removeCommandHandler: (cmdType, handler, onError) => {
+    removeCommandHandler: (cmdType) => {
       removeHandler({
         isCommand: true,
         handlersMap: commandHandlers,
