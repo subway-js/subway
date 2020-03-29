@@ -29,7 +29,7 @@ export const canHandleMessages = (
   }) => {
     if (handlersMap.has(messageType)) {
       throw Error(
-        `Aggregate '${self.name}' already has an handler for '${messageType}'.`
+        `Aggregate "${self.name}" already has a handler for command "${messageType}" is alreaady defined.`
       );
     }
     handlersMap.set(messageType, {
@@ -49,10 +49,19 @@ export const canHandleMessages = (
   return {
     ...self,
     canHandleMessages: true,
-    addCommandHandler: (cmdType, handler, onRejected) => {
+    addCommandHandler: (cmdType, handler, onRejected = null) => {
 
       if(!cmdType || !handler) {
         throw new Error('Missing required parameters are required: <type> and/or <handler>.');
+      }
+      if(Object.prototype.toString.call(cmdType) !== '[object String]') {
+        throw new Error('Invalid <cmdType> argument: must be a valid string.');
+      }
+      if(Object.prototype.toString.call(handler) !== '[object Function]') {
+        throw new Error('Invalid <handler> argument: must be a valid string.');
+      }
+      if(onRejected && Object.prototype.toString.call(onRejected) !== '[object Function]') {
+        throw new Error('Invalid <onReject> argument: it is optional and should be a function.');
       }
       addHandler({
         isCommand: true,
@@ -72,6 +81,12 @@ export const canHandleMessages = (
     addEventHandler: (evtType, handler) => {
       if(!evtType || !handler) {
         throw new Error('Missing required parameters are required: <type> and/or <handler>.');
+      }
+      if(Object.prototype.toString.call(evtType) !== '[object String]') {
+        throw new Error('Invalid <evtType> argument: must be a valid string.');
+      }
+      if(Object.prototype.toString.call(handler) !== '[object Function]') {
+        throw new Error('Invalid <handler> argument: must be a valid string.');
       }
       addHandler({
         isCommand: false,

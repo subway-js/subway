@@ -61,15 +61,50 @@ describe("Aggregate / Mixins / canHandleMessages", () => {
             expect(commandHandlers.size).toBe(0);
         });
 
+        test("Accepts one handler per command ", () => {
+            instance.addCommandHandler('type', () => {});
+            expect(() => instance.addCommandHandler('type', () => {})).toThrowError(new Error(`Aggregate "${BASE_OBJ_NAME}" already has a handler for command "type" is alreaady defined.`));
+            instance.removeCommandHandler('type')
+            expect(() => instance.addCommandHandler('type', () => {})).not.toThrowError();
+        });
+
         const MIN_REQUIRED_PARAMS_ERR_MSG = 'Missing required parameters are required: <type> and/or <handler>.';
+        const CMD_TYPE_PARAM_ERR_MSG = 'Invalid <cmdType> argument: must be a valid string.';
+        const HANDLER_PARAM_ERR_MSG = 'Invalid <handler> argument: must be a valid string.';
+        const ON_REJECTED_PARAM_ERR_MSG = 'Invalid <onReject> argument: it is optional and should be a function.';
 
         test("addCommandHandler params check ", () => {
+
+            // cmdType and handler are mandatory
             expect(() => instance.addCommandHandler()).toThrowError(new Error(MIN_REQUIRED_PARAMS_ERR_MSG));
-            expect(() => instance.addCommandHandler('type')).toThrowError(new Error(MIN_REQUIRED_PARAMS_ERR_MSG));
+            expect(() => instance.addCommandHandler('type1')).toThrowError(new Error(MIN_REQUIRED_PARAMS_ERR_MSG));
+
+            // check cmdType param validity
+            expect(() => instance.addCommandHandler(4, () => {})).toThrowError(new Error(CMD_TYPE_PARAM_ERR_MSG));
+            expect(() => instance.addCommandHandler({}, () => {})).toThrowError(new Error(CMD_TYPE_PARAM_ERR_MSG));
+            expect(() => instance.addCommandHandler([], () => {})).toThrowError(new Error(CMD_TYPE_PARAM_ERR_MSG));
+            expect(() => instance.addCommandHandler(() => {}, () => {})).toThrowError(new Error(CMD_TYPE_PARAM_ERR_MSG));
+
+            // check handler param validity
+            [{}, 4, [], new Date(), "aString"].forEach((invalidType, idx) => {
+                expect(() => instance.addCommandHandler(`loopType_1_${idx}`, invalidType)).toThrowError(new Error(HANDLER_PARAM_ERR_MSG));
+            })
+
+            // check onRejected param is optional
+            expect(() => instance.addCommandHandler('type2', () => {})).not.toThrowError();
+            expect(() => instance.addCommandHandler('type3', () => {}, () => {})).not.toThrowError();
+            expect(() => instance.addCommandHandler('type4', () => {}, null)).not.toThrowError();
+            expect(() => instance.addCommandHandler('type5', () => {}, undefined)).not.toThrowError();
+
+            // check onReject param validity when provided
+            [{}, 4, [], new Date(), "aString"].forEach((invalidType, idx) => {
+                expect(() => instance.addCommandHandler(`loopType_2_${idx}`, () => {}, invalidType)).toThrowError(new Error(ON_REJECTED_PARAM_ERR_MSG));
+            })
+            
         });
 
         test("removeCommandHandler params check ", () => {
-
+            // TODO
         });
 
         test("Accepts and removes event handlers ", () => {
@@ -88,17 +123,41 @@ describe("Aggregate / Mixins / canHandleMessages", () => {
             expect(eventHandlers.size).toBe(1);
             instance.removeEventHandler('type');
             expect(commandHandlers.size).toBe(0);
-            expect(eventHandlers.has('type')).toBe(false);
+            expect(eventHandlers.has('type')).toBe(false); 
             expect(eventHandlers.size).toBe(0);
         });
+        
+        test("Accepts one handler per event ", () => {
+            instance.addEventHandler('type', () => {});
+            expect(() => instance.addEventHandler('type', () => {})).toThrowError(new Error(`Aggregate "${BASE_OBJ_NAME}" already has a handler for command "type" is alreaady defined.`));
+            instance.removeEventHandler('type')
+            expect(() => instance.addEventHandler('type', () => {})).not.toThrowError();
+        });
 
+        const EVT_TYPE_PARAM_ERR_MSG = 'Invalid <evtType> argument: must be a valid string.';
+        
         test("addEventHandler params check ", () => {
+             // evtType and handler are mandatory
             expect(() => instance.addEventHandler()).toThrowError(new Error(MIN_REQUIRED_PARAMS_ERR_MSG));
             expect(() => instance.addEventHandler('type')).toThrowError(new Error(MIN_REQUIRED_PARAMS_ERR_MSG));
+
+            // check evtType param validity
+            expect(() => instance.addEventHandler(4, () => {})).toThrowError(new Error(EVT_TYPE_PARAM_ERR_MSG));
+            expect(() => instance.addEventHandler({}, () => {})).toThrowError(new Error(EVT_TYPE_PARAM_ERR_MSG));
+            expect(() => instance.addEventHandler([], () => {})).toThrowError(new Error(EVT_TYPE_PARAM_ERR_MSG));
+            expect(() => instance.addEventHandler(() => {}, () => {})).toThrowError(new Error(EVT_TYPE_PARAM_ERR_MSG));
+
+            // check handler param validity
+            expect(() => instance.addEventHandler('type', {})).toThrowError(new Error(HANDLER_PARAM_ERR_MSG));
+            expect(() => instance.addEventHandler('type', 5)).toThrowError(new Error(HANDLER_PARAM_ERR_MSG));
+            expect(() => instance.addEventHandler('type', [])).toThrowError(new Error(HANDLER_PARAM_ERR_MSG));
+            expect(() => instance.addEventHandler('type', new Date())).toThrowError(new Error(HANDLER_PARAM_ERR_MSG));
+            expect(() => instance.addEventHandler('type', "aString")).toThrowError(new Error(HANDLER_PARAM_ERR_MSG));
+
         });
 
         test("removeEventHandler params check ", () => {
-
+            // TODO
         });
         
     });
