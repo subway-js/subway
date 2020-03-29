@@ -29,7 +29,7 @@ export const canHandleMessages = (
   }) => {
     if (handlersMap.has(messageType)) {
       throw Error(
-        `Aggregate '${name}' already has an handler for '${messageType}'.`
+        `Aggregate '${self.name}' already has an handler for '${messageType}'.`
       );
     }
     handlersMap.set(messageType, {
@@ -40,7 +40,7 @@ export const canHandleMessages = (
   const removeHandler = ({ isCommand, handlersMap, messageType }) => {
     if (!handlersMap.has(messageType)) {
       throw Error(
-        `Aggregate '${name}' does not have a handler for '${messageType}'.`
+        `Aggregate '${self.name}' does not have a handler for '${messageType}'.`
       );
     }
     handlersMap.delete(messageType);
@@ -50,6 +50,10 @@ export const canHandleMessages = (
     ...self,
     canHandleMessages: true,
     addCommandHandler: (cmdType, handler, onRejected) => {
+
+      if(!cmdType || !handler) {
+        throw new Error('Missing required parameters are required: <type> and/or <handler>.');
+      }
       addHandler({
         isCommand: true,
         handlersMap: commandHandlers,
@@ -66,6 +70,9 @@ export const canHandleMessages = (
       });
     },
     addEventHandler: (evtType, handler) => {
+      if(!evtType || !handler) {
+        throw new Error('Missing required parameters are required: <type> and/or <handler>.');
+      }
       addHandler({
         isCommand: false,
         handlersMap: eventHandlers,

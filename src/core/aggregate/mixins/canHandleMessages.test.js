@@ -2,17 +2,17 @@ import { canHandleMessages } from "./canHandleMessages";
 
 describe("Aggregate / Mixins / canHandleMessages", () => {
 
+    let instance = null;
+    const BASE_OBJ_NAME = "baseObject";
+    const base = {
+        name: BASE_OBJ_NAME
+    };
+    const emitFn = jest.fn();
+    let commandHandlers = null;
+    let eventHandlers = null;
+
     describe("Feature check", () => {
 
-        const BASE_OBJ_NAME = "baseObject";
-        const base = {
-            name: BASE_OBJ_NAME
-        };
-        const emitFn = jest.fn();
-        let commandHandlers = null;
-        let eventHandlers = null;
-        let instance = null;
-    
         beforeEach(() => {
             commandHandlers = new Map();
             eventHandlers = new Map();
@@ -33,6 +33,77 @@ describe("Aggregate / Mixins / canHandleMessages", () => {
         });
     });
 
+    describe("Handlers subscription", () => {
+
+        beforeEach(() => {
+            commandHandlers = new Map();
+            eventHandlers = new Map();
+            instance = canHandleMessages(base, emitFn, commandHandlers, eventHandlers);
+        });
+
+        test("Accepts and removes command handlers ", () => {
+            instance.addCommandHandler('type', () => {});
+            expect(commandHandlers.has('type')).toBe(true);
+            expect(eventHandlers.size).toBe(0);
+            expect(commandHandlers.size).toBe(1);
+            instance.addCommandHandler('anotherType', () => {});
+            expect(commandHandlers.has('anotherType')).toBe(true);
+            expect(eventHandlers.size).toBe(0);
+            expect(commandHandlers.size).toBe(2);
+
+            instance.removeCommandHandler('anotherType');
+            expect(eventHandlers.size).toBe(0);
+            expect(commandHandlers.has('anotherType')).toBe(false);
+            expect(commandHandlers.size).toBe(1);
+            instance.removeCommandHandler('type');
+            expect(eventHandlers.size).toBe(0);
+            expect(commandHandlers.has('type')).toBe(false);
+            expect(commandHandlers.size).toBe(0);
+        });
+
+        const MIN_REQUIRED_PARAMS_ERR_MSG = 'Missing required parameters are required: <type> and/or <handler>.';
+
+        test("addCommandHandler params check ", () => {
+            expect(() => instance.addCommandHandler()).toThrowError(new Error(MIN_REQUIRED_PARAMS_ERR_MSG));
+            expect(() => instance.addCommandHandler('type')).toThrowError(new Error(MIN_REQUIRED_PARAMS_ERR_MSG));
+        });
+
+        test("removeCommandHandler params check ", () => {
+
+        });
+
+        test("Accepts and removes event handlers ", () => {
+            instance.addEventHandler('type', () => {});
+            expect(eventHandlers.has('type')).toBe(true);
+            expect(commandHandlers.size).toBe(0);
+            expect(eventHandlers.size).toBe(1);
+            instance.addEventHandler('anotherType', () => {});
+            expect(eventHandlers.has('anotherType')).toBe(true);
+            expect(commandHandlers.size).toBe(0);
+            expect(eventHandlers.size).toBe(2);
+
+            instance.removeEventHandler('anotherType');
+            expect(commandHandlers.size).toBe(0);
+            expect(eventHandlers.has('anotherType')).toBe(false);
+            expect(eventHandlers.size).toBe(1);
+            instance.removeEventHandler('type');
+            expect(commandHandlers.size).toBe(0);
+            expect(eventHandlers.has('type')).toBe(false);
+            expect(eventHandlers.size).toBe(0);
+        });
+
+        test("addEventHandler params check ", () => {
+            expect(() => instance.addEventHandler()).toThrowError(new Error(MIN_REQUIRED_PARAMS_ERR_MSG));
+            expect(() => instance.addEventHandler('type')).toThrowError(new Error(MIN_REQUIRED_PARAMS_ERR_MSG));
+        });
+
+        test("removeEventHandler params check ", () => {
+
+        });
+        
+    });
+
+    // TODO handle
     // TODO mixins cooperation: hasObservableState
 
     describe("Runtime constructor params check", () => {
