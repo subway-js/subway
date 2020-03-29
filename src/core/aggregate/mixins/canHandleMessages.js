@@ -37,10 +37,10 @@ export const canHandleMessages = (
       onRejected
     });
   };
-  const removeHandler = ({ isCommand, handlersMap, messageType }) => {
+  const removeHandler = ({ handlersMap, messageType }) => {
     if (!handlersMap.has(messageType)) {
       throw Error(
-        `Aggregate '${self.name}' does not have a handler for '${messageType}'.`
+        `Aggregate "${self.name}" does not have a handler for "${messageType}".`
       );
     }
     handlersMap.delete(messageType);
@@ -52,7 +52,7 @@ export const canHandleMessages = (
     addCommandHandler: (cmdType, handler, onRejected = null) => {
 
       if(!cmdType || !handler) {
-        throw new Error('Missing required parameters are required: <type> and/or <handler>.');
+        throw new Error('Missing parameters are required: <type> and/or <handler>.');
       }
       if(Object.prototype.toString.call(cmdType) !== '[object String]') {
         throw new Error('Invalid <cmdType> argument: must be a valid string.');
@@ -72,15 +72,17 @@ export const canHandleMessages = (
       });
     },
     removeCommandHandler: (cmdType) => {
+      if(!cmdType || Object.prototype.toString.call(cmdType) !== '[object String]') {
+        throw new Error('Invalid <cmdType> argument: must be a valid string.');
+      }
       removeHandler({
-        isCommand: true,
         handlersMap: commandHandlers,
         messageType: cmdType
       });
     },
     addEventHandler: (evtType, handler) => {
       if(!evtType || !handler) {
-        throw new Error('Missing required parameters are required: <type> and/or <handler>.');
+        throw new Error('Missing parameters are required: <type> and/or <handler>.');
       }
       if(Object.prototype.toString.call(evtType) !== '[object String]') {
         throw new Error('Invalid <evtType> argument: must be a valid string.');
@@ -96,8 +98,10 @@ export const canHandleMessages = (
       });
     },
     removeEventHandler: evtType => {
+      if(!evtType || Object.prototype.toString.call(evtType) !== '[object String]') {
+        throw new Error('Invalid <evtType> argument: must be a valid string.');
+      }
       removeHandler({
-        isCommand: false,
         handlersMap: eventHandlers,
         messageType: evtType
       });
