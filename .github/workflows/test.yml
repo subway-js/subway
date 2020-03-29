@@ -27,9 +27,9 @@ jobs:
         node-version: '10.x'
           
     # Runs a single command using the runners shell
-    - name: Build library
+    - name: npm install, build and test
       run: |
-        npm install,
-        npm run build,
-        npm run test
+        npm install
+        npm run build
+        npm test
         
