@@ -1,5 +1,5 @@
 
-# SubwayJS  &middot; [![Build & Unit Tests](https://github.com/subway-js/subway/workflows/Build%20&%20Unit%20Tests/badge.svg?branch=master)](https://github.com/subway-js/subway/actions?query=workflow%3A%22Build+%26+Unit+Tests%22) [![Codecov](https://codecov.io/gh/subway-js/subway/branch/master/graph/badge.svg)](https://codecov.io/gh/subway-js/subway)
+# SubwayJS  &middot; [![Build & Unit Tests](https://github.com/subway-js/subway/workflows/Build%20&%20Unit%20Tests/badge.svg?branch=master)](https://github.com/subway-js/subway/actions?query=workflow%3A%22Build+%26+Unit+Tests%22) [![Codecov](https://codecov.io/gh/subway-js/subway/branch/master/graph/badge.svg)](https://codecov.io/gh/subway-js/subway) [![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/Naereen/StrapDown.js/blob/master/LICENSE)
 
 Subway is a personal project from [danilorossi](https://github.com/danilorossi) that explores the idea of bringing some of the patterns and benefits of **Domain Driven Design, Event Sourcing and CQRS** to the browsers, for frontend and micro-frontends development.
 
