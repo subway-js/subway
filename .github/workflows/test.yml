@@ -22,7 +22,10 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
     - uses: Atrox/codecov-action@v0.1.3
-
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '10.x'
+          
     # Runs a single command using the runners shell
     - name: Build library
       run: |
