@@ -115,7 +115,6 @@ export const canHandleMessages = (
           ? self.getCurrentState()
           : null;
 
-        // TODO: rejectCommand? Exception?
         const broadcasts = []
         let nextEvents = []
         let nextStateProposal = null;

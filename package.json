@@ -1,6 +1,6 @@
 {
   "name": "@subway-js/subway",
-  "version": "0.17.6",
+  "version": "0.0.0-development",
   "description": "Subway is a personal project from [danilorossi](https://github.com/danilorossi) that explores the idea of bringing **event sourcing & CQRS** to the browser for micro-frontends development.",
   "repository": {
     "type": "git",
@@ -27,7 +27,8 @@
     "prettier": "1.19.1",
     "rollup": "^1.20.0",
     "rollup-plugin-babel": "4.3.3",
-    "rollup-plugin-terser": "5.2.0"
+    "rollup-plugin-terser": "5.2.0",
+    "semantic-release": "17.0.4"
   },
   "scripts": {
     "build": "rollup -c",
