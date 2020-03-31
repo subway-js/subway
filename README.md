@@ -1,9 +1,14 @@
 
-# SubwayJS  &middot; [![Build & Unit Tests](https://github.com/subway-js/subway/workflows/Build%20&%20Unit%20Tests/badge.svg?branch=master)](https://github.com/subway-js/subway/actions?query=workflow%3A%22Build+%26+Unit+Tests%22) [![Codecov](https://codecov.io/gh/subway-js/subway/branch/master/graph/badge.svg)](https://codecov.io/gh/subway-js/subway) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/subway-js/subway/blob/master/LICENSE) [![npm version](https://badge.fury.io/js/%40subway-js%2Fsubway.svg)](https://badge.fury.io/js/%40subway-js%2Fsubway) ![npm version](https://img.shields.io/badge/stability-alpha-green)
+<p style="text-align: center;">
+<img src="docs/subway-js-logo.png" data-canonical-src="docs/subway-js-logo.png" width="250" />
+</p>
 
 
 
-Subway is a personal project from [danilorossi](https://github.com/danilorossi) that explores the idea of bringing some of the patterns and benefits of **Domain Driven Design, Event Sourcing and CQRS** to the browsers, for frontend and micro-frontends development.
+[![Build & Unit Tests](https://github.com/subway-js/subway/workflows/Build%20&%20Unit%20Tests/badge.svg?branch=master)](https://github.com/subway-js/subway/actions?query=workflow%3A%22Build+%26+Unit+Tests%22) [![Codecov](https://codecov.io/gh/subway-js/subway/branch/master/graph/badge.svg)](https://codecov.io/gh/subway-js/subway) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/subway-js/subway/blob/master/LICENSE) [![npm version](https://badge.fury.io/js/%40subway-js%2Fsubway.svg)](https://badge.fury.io/js/%40subway-js%2Fsubway) ![npm version](https://img.shields.io/badge/stability-alpha-green)
+
+
+SubwayJS is a personal project from [danilorossi](https://github.com/danilorossi) that explores the idea of bringing some of the patterns and benefits of **Domain Driven Design, Event Sourcing and CQRS** to the browsers, for frontend and micro-frontends development.
 
 That's a big statement, so let's first of all clarify how those patterns inspire Subway.
 
