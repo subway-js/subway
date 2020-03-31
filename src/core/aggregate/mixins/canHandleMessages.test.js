@@ -17,7 +17,7 @@ describe("Aggregate / Mixins / canHandleMessages", () => {
             commandHandlers = new Map();
             eventHandlers = new Map();
             instance = canHandleMessages(base, emitFn, commandHandlers, eventHandlers);
-        });
+        }); 
 
         test("Initializes base object", () => {
             expect(instance.name).toBe(BASE_OBJ_NAME);
