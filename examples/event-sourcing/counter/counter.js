@@ -26,6 +26,8 @@ engine.stores.updateOnEvent('counterStore', 'incrementAdded', (state, payload) =
  view.broker.pushCommand('increment', { amount: 20 })
 
  view.broker.pushCommand('increment', { amount: 30 })
+ view.broker.pushCommand('increment', { amount: 50 })
+ view.broker.pushCommand('increment', { amount: 40 })
 
 // setTimeout(() => {
 //   view.broker.pushCommand('increment', { amount: 30 })

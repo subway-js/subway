@@ -7,6 +7,7 @@ let subwayDriver = null;
 if (window.Worker) {
     subwayDriver = workerDriverFactory();
 } else {
+    // TODO default driver to work without WW e.g. react native
     throw Error('Cannot bootstrap SubwayJS: your browser does not support WebWorkers.')
 }
 
