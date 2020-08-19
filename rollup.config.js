@@ -14,6 +14,13 @@ export default [
       file: pkg.browser,
       format: "iife"
     }
+  }, {
+    input: "src/subwayWorker.js",
+    output: {
+      name: "ww",
+      file: 'dist/subwayWorker.js',
+      format: "iife"
+    }
   }
   /*  {
     input: "src/index.js",

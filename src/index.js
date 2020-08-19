@@ -1,32 +1,116 @@
-import * as MicroFrontendManager from "./microfrontends/index";
-import * as AggregateManager from "./core/facade";
-import { InternalAggregateNames } from "./globals/internalAggregates";
-//
-// Rule 1: each aggregate lives inside an '/aggregates/aggregateName' folder
-// Rule 2: code inside '/aggregates/xxx' should never call
-//         selectAggregate() or createAggregate() with something different than 'xxx'
-// Rule 3: code inside '/aggregates/xxx' should never explicitely
-//         import anything from other aggregates folders e.g. '../aggregates/yyy'
+import { workerDriverFactory } from './drivers/webWorkerDriver';
+
+window.log = (msg, data) => {console.log('[ MAIN ] ' + msg, data)}
+
+let subwayDriver = null;
+
+if (window.Worker) {
+    subwayDriver = workerDriverFactory();
+} else {
+    throw Error('Cannot bootstrap SubwayJS: your browser does not support WebWorkers.')
+}
+
+const domains = {};  
+ 
+subwayDriver.onStoreUpdated((storeDomain, storeId, nextState) => {
+    const cb = (domains[storeDomain].stores[storeId] || null)
+    cb && cb(nextState)
+}) 
+
+const setCommandProcessor = domainName => (commandId, processor) => {
+    subwayDriver.setCommandProcessor(domainName, {
+        commandId,
+        processorString: processor.toString()
+    }) 
+}
+
+const setEventProcessor = domainName => (eventId, processor) => {
+    subwayDriver.setEventProcessor(domainName, {
+        eventId,
+        processorString: processor.toString()
+    }) 
+}
+
+const createStore = domainName => (storeName, initialState = {}) => {
+    subwayDriver.createStore(domainName, {
+        storeName,
+        initialState
+    })
+
+    domains[domainName].stores[storeName] = {}; 
+}
+
+const updateStoreOnEvent = domainName => (storeName, eventId, processor) => {
+    subwayDriver.setStoreProcessor(domainName, {
+        storeName,
+        eventId,
+        processorString: processor.toString()
+    }) 
+}
+
+const observeStore = domainName => (storeId, cb) => {
+    if(!domains[domainName].stores[storeId]) { 
+        throw Error(`Store ${storeId} not found in domain ${domainName}`)
+    }
+    domains[domainName].stores[storeId] = cb 
+
+    subwayDriver.observeStore(domainName, {
+        storeId, 
+    })
+}
+
+const sendCommand = domainName => (commandId, payload) => {
+
+    subwayDriver.pushCommand(domainName, {
+        commandId,
+        payload
+    }) 
+}
+
+const getDomainApi = (domainName) => {
+
+    if(!domains[domainName]) {
+        domains[domainName] = {
+            stores: {}
+        }
+    };
+
+    return {
+        engine: {
+            broker: {
+                onCommand: setCommandProcessor(domainName),
+                onEvent: setEventProcessor(domainName),
+            },
+            stores: {
+                create: createStore(domainName),
+                updateOnEvent: updateStoreOnEvent(domainName),
+            }
+        },
+        view: {
+            broker: {
+                pushCommand: sendCommand(domainName),
+                spyOrReact: null,
+            },
+            stores: {
+                // TODO cross store communication - query?
+                observe: observeStore(domainName)
+            }
+        },
+    }
+}
+
 
 const Subway = {
-  createAggregate: (name, initialState) => {
-    if (InternalAggregateNames.includes(name)) {
-      throw Error(`Aggregate name '${name}' is a reserved namespace`);
+
+    domain: (name) => {
+        return getDomainApi(name);
     }
-    return AggregateManager.createAggregate(name, initialState);
-  },
-  selectAggregate: AggregateManager.selectAggregate,
 
-  // TODO
-  // $dev: {
-  //   spy: () => {},
-  //   observAggregateState: () => {},
-  // },
+}
 
-  microFrontends: () => ({
-    compose: MicroFrontendManager.init,
-    install: MicroFrontendManager.connect
-  })
-};
+// setTimeout(() => {
+//     subwayWorker.terminate()
+// }, (1000));
+
 
 export default Subway;
