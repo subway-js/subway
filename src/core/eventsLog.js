@@ -27,7 +27,6 @@ export const eventsLogFactory = ({ runStoreProcessor, runEventProcessor }) => {
             },
             processEvents: () => {
                 _processEvents(domainName)
-                // setTimeout(() => _processEvents(domainName), 0)
             }
         }
     }

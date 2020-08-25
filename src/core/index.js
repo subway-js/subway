@@ -55,12 +55,9 @@ export const coreFactory = ({ onStoreUpdated }) => {
 
             // Broker
             pushCommand: (commandId, payload) => {
-                // events = processCommand()
                 const result = processorsRepo(domainName).processCommand(commandId, payload)
                 const nextEvents = typeof result === 'object' ? [ result ] : result;
                 nextEvents.forEach(event => eventsLog(domainName).log(event))
-
-                setTimeout(() => eventsLog(domainName).processEvents(), 0)
             },
             // TODO
             // observe? 'event' '*.event' 'domain.event', or command - command@rejected?
