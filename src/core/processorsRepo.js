@@ -32,7 +32,7 @@ export const processorsRepoFactory = ({
                 commandProcessors.get(domainName).set(commandId, processor);
             },
 
-            setEventProcessor: (eventId, processorString) => {
+            setEventProcessor: (eventId, processor) => {
                 if(!eventProcessors.has(domainName)) {
                     eventProcessors.set(domainName, new Map());
                 }
@@ -60,6 +60,18 @@ export const processorsRepoFactory = ({
                     const commandProcessor = commandProcessors.get(domainName).get(commandId)
                     return commandProcessor(
                         { commandId, payload },
+                        getDomainStoresState(domainName),
+                        domainEventFactory(domainName)    
+                    )
+                }
+                return []
+            },
+            processEvent: ({ eventId, payload }) => {
+                if(eventProcessors.has(domainName) &&
+                    eventProcessors.get(domainName).has(eventId)) {
+                    const eventProcessor = eventProcessors.get(domainName).get(eventId)
+                    return eventProcessor(
+                        { eventId, payload },
                         getDomainStoresState(domainName),
                         domainEventFactory(domainName)    
                     )

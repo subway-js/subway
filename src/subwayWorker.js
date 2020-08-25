@@ -5,7 +5,7 @@ import {
   INTENT_CREATE_STORE,
   INTENT_OBSERVE_STORE,
   INTENT_PUSH_COMMAND,
-} from './new/globals';
+} from './core/globals';
 
 import { fromString } from './utils/functionSerializer'
 import { coreFactory } from './core/index'
@@ -22,16 +22,8 @@ const subwayCore = coreFactory({
   }
 });
 
-import { messagesBrokerFactory } from './new/messagesManager';
-
 const log = (msg, data) => { console.log('[ WW ] ' + msg, data) };
  
-const messageBroker = messagesBrokerFactory((domainName) => {
-    return storesManager(domainName).getAllStoreStates()
-  }, (domainName, eventName, event) => {
-    storesManager(domainName).processEvent(eventName, event)
-  });
-
 self.addEventListener('message', async (message) => { 
 
   message.data && log('Intent received:', message.data)

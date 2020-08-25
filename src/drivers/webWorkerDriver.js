@@ -5,7 +5,7 @@ import {
     INTENT_CREATE_STORE,
     INTENT_OBSERVE_STORE,
     INTENT_PUSH_COMMAND,
-} from '../new/globals';
+} from '../core/globals';
 
 export const workerDriverFactory = () => {
 
@@ -17,7 +17,7 @@ export const workerDriverFactory = () => {
         console.log(error);
         throw Error('Error loading subwayWorker', error);
     }
-    subwayWorker.onerror = event => {
+    subwayWorker.onerror = error => {
         console.log(error);
         throw Error('SubwayWorker error', error);
     }

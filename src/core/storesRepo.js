@@ -59,7 +59,7 @@ export const storesRepoFactory = ({ onStoreUpdateCallback }) => {
             }
         },
         getStoreState: storeName => {
-            return { ...domains.get(domainName).set(storeName) };
+            return { ...domains.get(domainName).get(storeName) };
         },
         updateStore: (storeName, nextState = {}) => {
             updateStoreState(domainName, storeName, nextState);

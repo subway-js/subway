@@ -6,12 +6,10 @@ export const coreFactory = ({ onStoreUpdated }) => {
 
     const storesRepo = storesRepoFactory({
         onStoreUpdateCallback: (domainName, storeName, nextState) => {
-            // Called when a store state is updated
             onStoreUpdated(domainName, storeName, nextState) 
         }
     })
 
-    // TODO getStoreState to be injeccted
     const processorsRepo = processorsRepoFactory({
         getDomainStoresState: (domainName) => {
             return storesRepo(domainName).getAllStoreStates()
@@ -27,6 +25,9 @@ export const coreFactory = ({ onStoreUpdated }) => {
     const eventsLog = eventsLogFactory({
         runStoreProcessor: (domainName, eventName, payload) => {
             processorsRepo(domainName).processStore(eventName, payload)
+        },
+        runEventProcessor: (domainName, event) => {
+            return processorsRepo(domainName).processEvent(event)
         }
     })
 
@@ -61,6 +62,8 @@ export const coreFactory = ({ onStoreUpdated }) => {
 
                 setTimeout(() => eventsLog(domainName).processEvents(), 0)
             },
+            // TODO
+            // observe? 'event' '*.event' 'domain.event', or command - command@rejected?
         }
     }
 }
